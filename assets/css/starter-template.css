@@ -1,0 +1,36 @@
+body {
+    padding-top: 50px;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: left;
+}
+
+p {
+    font-size: larger;
+}
+
+pre {
+    color: navy;
+    /* font-weight: bold; */
+    font-size: larger;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+h1, .h1, h2, .h2, h3, .h3, h5, .h5
+{
+    margin-top: 30px;
+}
+
+.bs-component {
+    margin-top: 30px;
+}
+
+code {
+    font-size: larger;
+}
+
+blockquote {
+  font-size: 14.0px;
+}
