@@ -1,3 +1,3 @@
-# Build ASP.Net Core Web API's
+# ASP.NET Core Razor Pages Web Development
 
-These are my notes from a course I am doing on creating a Web API and an MVC Web application that consumes the API data.
+These are my notes from a course I am doing on creating a Razor Web Pages application.
