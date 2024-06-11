@@ -425,6 +425,409 @@ code {
 </div></code></pre>
 <p>This will look like.</p>
 <p><img src="assets/images/dropdown-menu.jpg" alt="Dropdown menu" title="Dropdown menu"></p>
+<p>Make another small change to the <code>_layout.cs</code> page. Remove the Container class div from around <code>main</code>.</p>
+<pre class="hljs"><code><div>    &lt;/header&gt;
+    &lt;main role=<span class="hljs-string">"main"</span> class=<span class="hljs-string">"pb-3"</span>&gt;
+        @RenderBody()
+    &lt;/main&gt;
+
+    &lt;footer class=<span class="hljs-string">"border-top footer text-muted"</span>&gt;
+</div></code></pre>
+<h2 id="create-an-add-blog-post-razor-form-and-bind-property">Create an Add Blog Post Razor form and Bind property</h2>
+<p><code>Add.cshtml</code></p>
+<pre class="hljs"><code><div>@page
+@model Blog.Pages.Admin.Blogs.AddModel
+@{
+}
+
+&lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;h2&gt;Add Blog page&lt;/h2&gt; 
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;form method=<span class="hljs-string">"post"</span>&gt;
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"heading"</span> class=<span class="hljs-string">"form-label"</span>&gt;Heading&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"heading"</span> name=<span class="hljs-string">"heading"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"pageTitle"</span> class=<span class="hljs-string">"form-label"</span>&gt;Page Title&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"pageTitle"</span> name=<span class="hljs-string">"pageTitle"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"content"</span> class=<span class="hljs-string">"form-label"</span>&gt;Content&lt;/label&gt;
+                &lt;textarea class=<span class="hljs-string">"form-control"</span> required id=<span class="hljs-string">"content"</span> name=<span class="hljs-string">"content"</span>&gt;&lt;/textarea&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"shortDescription"</span> class=<span class="hljs-string">"form-label"</span>&gt;Short Description&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"shortDescription"</span> name=<span class="hljs-string">"shortDescription"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"featuredImageUrl"</span> class=<span class="hljs-string">"form-label"</span>&gt;Featured Image Url&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"featuredImageUrl"</span> name=<span class="hljs-string">"featuredImageUrl"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"urlHandle"</span> class=<span class="hljs-string">"form-label"</span>&gt;Url Handle&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"urlHandle"</span> name=<span class="hljs-string">"urlHandle"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"publishedDate"</span> class=<span class="hljs-string">"form-label"</span>&gt;Published Date&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"date"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"publishedDate"</span> name=<span class="hljs-string">"publishedDate"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"author"</span> class=<span class="hljs-string">"form-label"</span>&gt;Author&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"author"</span> name=<span class="hljs-string">"author"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"form-check mb-3"</span>&gt;
+                &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> id=<span class="hljs-string">"isVisible"</span> name=<span class="hljs-string">"isVisible"</span>&gt;
+                &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"isVisible"</span>&gt;
+                    Is Visible
+                &lt;/label&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;button class=<span class="hljs-string">"btn btn-primary"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span>&gt;Submit&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<p>In our CodeBehind page we have an <code>OnGet()</code> method and we also need an <code>OnPost()</code> method.</p>
+<p>There are a number of ways that we can get the data from the Form to the <code>OnPost()</code> method.</p>
+<p>We have added the <code>name</code> attribute to each field and will use this to retrieve the data in the CodeBehind page.</p>
+<pre class="hljs"><code><div>    public void <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var heading = Request.Form[<span class="hljs-string">"heading"</span>];
+        var pageTitle = Request.Form[<span class="hljs-string">"pageTitle"</span>];
+        var content = Request.Form[<span class="hljs-string">"content"</span>];
+        var shortDescription = Request.Form[<span class="hljs-string">"shortDescription"</span>];
+        var featuredImageUpload = Request.Form[<span class="hljs-string">"featuredImageUpload"</span>];
+        var featuredImageUrl = Request.Form[<span class="hljs-string">"featuredImageUrl"</span>];
+        var urlHandle = Request.Form[<span class="hljs-string">"urlHandle"</span>];
+        var publishedDate = Request.Form[<span class="hljs-string">"publishedDate"</span>];
+        var author = Request.Form[<span class="hljs-string">"author"</span>];
+        var tags = Request.Form[<span class="hljs-string">"tags"</span>];
+        var isVisible = Request.Form[<span class="hljs-string">"isVisible"</span>];
+    }
+</div></code></pre>
+<p>This is the old way of returning data. it grabs the <code>name</code> field from the form.</p>
+<p>A slightly better way is to add properties to the CodeBehind page. First you need to change all of the <code>name</code> attributes on the <code>Add.cshtml</code> page to <code>asp-for</code> tag helpers. E.g.</p>
+<pre class="hljs"><code><div>    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"heading"</span> asp-for=<span class="hljs-string">"Heading"</span>&gt;
+</div></code></pre>
+<p>In the <code>Add.cshtml.cs</code> CodeBehind.</p>
+<pre class="hljs"><code><div>    [BindProperty]
+    public string Heading { get; <span class="hljs-built_in">set</span>; }
+    
+    [BindProperty]
+    public string PageTitle { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>In the <code>OnPost()</code> method you can call these properties to get their values once you Post the <code>Add</code> page.</p>
+<pre class="hljs"><code><div>    public void <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var heading = Heading;
+        var pageTitle = PageTitle;
+    }
+</div></code></pre>
+<p>This method will clutter up the CodeBehind class. A much better idea is to create a ViewModel. We do this by creating a <code>ViewModels</code> folder inside the <code>Models</code> folder.</p>
+<p>Now create a class named <code>AddBlogPost.cs</code> in <code>ViewModels</code>.</p>
+<pre class="hljs"><code><div>    public class AddBlogPost
+    {
+        [Required]
+        public string Heading { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string PageTitle { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string Content { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string ShortDescription { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string FeaturedImageUrl { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string UrlHandle { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public DateTime PublishedDate { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string Author { get; <span class="hljs-built_in">set</span>; }
+
+        public bool Visible { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<p>Now we have to change the <code>Add.cshtml</code> page.</p>
+<pre class="hljs"><code><div>@page
+@model Blog.Pages.Admin.Blogs.AddModel
+@{
+}
+
+&lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;h2&gt;Add Blog page&lt;/h2&gt; 
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div&gt;
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;form method=<span class="hljs-string">"post"</span>&gt;
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"heading"</span> class=<span class="hljs-string">"form-label"</span>&gt;Heading&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"heading"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.Heading"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"pageTitle"</span> class=<span class="hljs-string">"form-label"</span>&gt;Page Title&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"pageTitle"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.PageTitle"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"content"</span> class=<span class="hljs-string">"form-label"</span>&gt;Content&lt;/label&gt;
+                &lt;textarea class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"content"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.Content"</span>&gt;&lt;/textarea&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"shortDescription"</span> class=<span class="hljs-string">"form-label"</span>&gt;Short Description&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"shortDescription"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.ShortDescription"</span>&gt;
+            &lt;/div&gt;
+
+             &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"featuredImageUrl"</span> class=<span class="hljs-string">"form-label"</span>&gt;Featured Image Url&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"featuredImageUrl"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.FeaturedImageUrl"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"urlHandle"</span> class=<span class="hljs-string">"form-label"</span>&gt;Url Handle&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"urlHandle"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.UrlHandle"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"publishedDate"</span> class=<span class="hljs-string">"form-label"</span>&gt;Published Date&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"date"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"publishedDate"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.PublishedDate"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"author"</span> class=<span class="hljs-string">"form-label"</span>&gt;Author&lt;/label&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"author"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.Author"</span>&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"form-check mb-3"</span>&gt;
+                &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> id=<span class="hljs-string">"isVisible"</span> asp-for=<span class="hljs-string">"AddBlogPostRequest.Visible"</span>&gt;
+                &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"isVisible"</span>&gt;
+                    Is Visible
+                &lt;/label&gt;
+            &lt;/div&gt;
+
+            &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                &lt;button class=<span class="hljs-string">"btn btn-primary"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span>&gt;Submit&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<h2 id="save-to-database">Save to Database</h2>
+<p>We can now work on the CodeBehind. The first thing we need to do is create an object to store the Form content that a user enters. We will use the ViewModel class that we created, <code>AddBlogPost</code>.</p>
+<p>We need to use the <code>[BindProperty]</code> to bind the Form data.</p>
+<pre class="hljs"><code><div>    [BindProperty]
+    public AddBlogPost AddBlogPostRequest { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>The next thing we need to do is inject the DbContext into class using the constructor. We created this context in our <code>Program.cs</code> class. We can use this context in our methods in the class.</p>
+<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext
+    
+    public AddModel(BlogDbContext blogDbContext)
+    {
+        this.blogDbContext = blogDbContext;
+    }
+</div></code></pre>
+<p>The Form content that is in the <code>AddBlogPostRequest</code> object needs to be mapped to the Domain model object, <code>BlogPost</code>.</p>
+<p>Create a new <code>BlogPost</code> object in the <code>OnPost()</code> method and map the fields to it.</p>
+<pre class="hljs"><code><div>    var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
+    {
+        Heading = AddBlogPostRequest.Heading,
+        PageTitle = AddBlogPostRequest.PageTitle,
+        Content = AddBlogPostRequest.Content,
+        ShortDescription = AddBlogPostRequest.ShortDescription,
+        FeaturedImageUrl = AddBlogPostRequest.FeaturedImageUrl,
+        UrlHandle = AddBlogPostRequest.UrlHandle,
+        PublishedDate = AddBlogPostRequest.PublishedDate,
+        Author = AddBlogPostRequest.Author,
+        Visible = AddBlogPostRequest.Visible
+    };
+</div></code></pre>
+<p>To save the <code>blogPost</code> object into the database we need to use two steps.</p>
+<p>The first step is to add the <code>blogPost</code> object into the DBSet method, <code>BlogPosts</code>.</p>
+<pre class="hljs"><code><div>    await blogDbContext.BlogPosts.AddAsync(blogPost);
+</div></code></pre>
+<p>Next we need to use the DbContext to save the object to the database.</p>
+<pre class="hljs"><code><div>    await blogDbContext.SaveChangesAsync();
+</div></code></pre>
+<p>If you don't do this step it won't save the changes to the database.</p>
+<h3 id="addcshtmlcs">Add.cshtml.cs</h3>
+<pre class="hljs"><code><div>    namespace Blog.Pages.Admin.Blogs
+    {
+        public class AddModel : PageModel
+        {
+            private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext;
+
+            [BindProperty]
+            public AddBlogPost AddBlogPostRequest { get; <span class="hljs-built_in">set</span>; }
+
+            public AddModel(BlogDbContext blogDbContext)
+            {
+                this.blogDbContext = blogDbContext;
+            }
+
+            public void <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+            {
+            }
+
+            public async Task <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+            {
+                var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
+                {
+                    Heading = AddBlogPostRequest.Heading,
+                    PageTitle = AddBlogPostRequest.PageTitle,
+                    Content = AddBlogPostRequest.Content,
+                    ShortDescription = AddBlogPostRequest.ShortDescription,
+                    FeaturedImageUrl = AddBlogPostRequest.FeaturedImageUrl,
+                    UrlHandle = AddBlogPostRequest.UrlHandle,
+                    PublishedDate = AddBlogPostRequest.PublishedDate,
+                    Author = AddBlogPostRequest.Author,
+                    Visible = AddBlogPostRequest.Visible
+                };
+
+                await blogDbContext.BlogPosts.AddAsync(blogPost);
+                await blogDbContext.SaveChangesAsync();
+            }
+        }
+    }
+</div></code></pre>
+<p>Once we fill in the form data and submit we are sent back to the Add form. This isn't ideal and we will change this behavior when we create a Blog post list next.</p>
+<h2 id="show-all-blog-posts">Show all Blog Posts</h2>
+<p>We will create a List view named <code>List.cshtml</code> in the <code>Admin-&gt;Blogs</code> folder.</p>
+<p>In the CodeBehind class inject the DbContext into the Constructor.</p>
+<p>To create a list of <code>BlogPosts</code> you have to create a public List of <code>BlogPost</code>. By doing this the list can be available to the Razor page. We do this with.</p>
+<pre class="hljs"><code><div>    public List&lt;BlogPost&gt; BlogPosts { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>To create the list of <code>BlogPosts</code> use the <code>OnGetAsync()</code> method with this statement.</p>
+<pre class="hljs"><code><div>    public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        BlogPosts = await blogDbContext.BlogPosts.ToListAsync();
+    }
+</div></code></pre>
+<p>Once again we are using the DbContext to bring back a list of DBSet <code>BlogPosts</code> and then creating a list with <code>ToListAsync()</code>.</p>
+<h3 id="listcshtmlcs">List.cshtml.cs</h3>
+<pre class="hljs"><code><div>    public class ListModel : PageModel
+    {
+        public List&lt;BlogPost&gt; BlogPosts { get; <span class="hljs-built_in">set</span>; }
+
+        private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext;
+        
+        public ListModel(BlogDbContext blogDbContext)
+        {
+            this.blogDbContext = blogDbContext;
+        }
+
+        public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+        {
+            BlogPosts = await blogDbContext.BlogPosts.ToListAsync();
+        }
+    }
+</div></code></pre>
+<p><strong>Note:</strong> because the list of <code>BlogPosts</code> in <code>OnGetAsync()</code> is public they are available to List.cshtml.</p>
+<h3 id="listcshtml">List.cshtml</h3>
+<pre class="hljs"><code><div>@page
+@model Blog.Pages.Admin.Blogs.ListModel
+@{
+}
+
+&lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;h2&gt;Blog Posts&lt;/h2&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt; --&gt;
+@<span class="hljs-keyword">if</span> (Model.BlogPosts != null &amp;&amp; Model.BlogPosts.Any())
+{
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;table class=<span class="hljs-string">"table"</span>&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Id&lt;/td&gt;
+                    &lt;td&gt;Heading&lt;/td&gt;
+                    &lt;td&gt; &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                @foreach (var blogPost <span class="hljs-keyword">in</span> Model.BlogPosts)
+                {
+                    &lt;tr&gt;
+                        &lt;td&gt;@blogPost.Id&lt;/td&gt;
+                        &lt;td&gt;@blogPost.Heading&lt;/td&gt;
+                        &lt;td&gt;&lt;a href=<span class="hljs-string">"/Admin/Blogs/Edit/@blogPost.Id"</span>&gt;View&lt;/a&gt;&lt;/td&gt;
+                    &lt;/tr&gt;
+                }
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/div&gt;
+}
+<span class="hljs-keyword">else</span>
+{
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;p&gt;No blog posts were found!&lt;/p&gt;
+    &lt;/div&gt;
+}
+</div></code></pre>
+<p>Once again we can add an <code>Admin--&gt;Blogs--&gt;List</code> link into <code>_Layout.cs</code>.</p>
+<h2 id="edit-or-update-page">Edit or Update page</h2>
+<p>On our list page we have an Edit button for each row. Inside the link we have the <code>@blogPost.Id</code> and we will use this to get the Blog Post from the database.</p>
+<p>At the top of the <code>Edit.cshtml</code> page we need to add the following.</p>
+<pre class="hljs"><code><div>    @page <span class="hljs-string">"{id:int}"</span>
+</div></code></pre>
+<p>This is the <code>id</code> route parameter and we make it type safe by adding the type (<code>int</code>) next to it.</p>
+<p>In the <code>Edit.cshtml.cs</code> CodeBehind class we will add the route parameter to the <code>OnGet()</code> method.</p>
+<p>We inject our DbContext and create a public property to hold the <code>BlogPost</code> object.</p>
+<p><strong>Note:</strong> I wasn't aware that by making a public property you make it available to the Razor page. This is important to remember.</p>
+<p>We then use the DbContext to return the Post that is identified by the route parameter.</p>
+<pre class="hljs"><code><div>    public async Task OnGet(int id)
+    {
+        BlogPost = await blogDbContext.BlogPosts.FindAsync(id);
+    }
+</div></code></pre>
+<h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
+<pre class="hljs"><code><div>    public class EditModel : PageModel
+    {
+        public BlogPost BlogPost { get; <span class="hljs-built_in">set</span>; }
+
+        private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext;
+
+        public EditModel(BlogDbContext blogDbContext)
+        {
+            this.blogDbContext = blogDbContext;
+        }
+
+        public async Task OnGet(int id)
+        {
+            BlogPost = await blogDbContext.BlogPosts.FindAsync(id);
+        }
+    }
+</div></code></pre>
+<p><strong>Note:</strong> before I build the Razor page I can test that the DbContext is returning the Post by adding a breakpoint on the DbContext statement in the <code>OnGet()</code> method. When I run this I can see my data in <code>BlogPost</code>.</p>
 
 </body>
 </html>
