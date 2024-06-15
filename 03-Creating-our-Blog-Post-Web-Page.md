@@ -473,7 +473,7 @@ Once again we are using the DbContext to bring back a list of DBSet ``BlogPosts`
     }
 ```
 
-**Note:** because the list of ``BlogPosts`` in ``OnGetAsync()`` is public they are available to List.cshtml.
+**Note:** because the list of ``BlogPosts`` in ``OnGetAsync()`` is public they are available to ``List.cshtml``.
 
 ### List.cshtml
 
@@ -597,7 +597,6 @@ We then use the DbContext to return the Post that is identified by the route par
                 <div class="mb-3">
                     <label for="heading" class="form-label">Id</label>
                     <input type="text" class="form-control" id="id" asp-for="BlogPost.Id" readonly>
-                    <span class="text-danger" asp-validation-for="BlogPost.Id"></span>
                 </div>
 
                 <div class="mb-3">
@@ -668,4 +667,335 @@ else
 
 When I run this it returns the Edit Form. We are now ready to write the ``OnPost()`` method.
 
-**Note:** We need to add ``[BindProperty]`` to our ``BlogPost`` property. This will make the property have 2-way binding and this is necessary for both the ``OnGet()`` and ``OnPost()`` methods.
+**Note:** We need to add ``[BindProperty]`` to our ``BlogPost`` property. This will make the property have 2-way binding and this is needed for both the ``OnGet()`` and ``OnPost()`` methods.
+
+### Edit.cshtml.cs
+
+```bash
+    public class EditModel : PageModel
+    {
+        [BindProperty]
+        public BlogPost BlogPost { get; set; }
+
+        private readonly BlogDbContext blogDbContext;
+
+        public EditModel(BlogDbContext blogDbContext)
+        {
+            this.blogDbContext = blogDbContext;
+        }
+
+        public async Task OnGet(int id)
+        {
+            BlogPost = await blogDbContext.BlogPosts.FindAsync(id);
+        }
+
+        public async Task<IActionResult> OnPost()
+        {
+            var existingPost = await blogDbContext.BlogPosts.FindAsync(BlogPost.Id);
+            
+            if (existingPost != null)
+            {
+                existingPost.Heading = BlogPost.Heading;
+                existingPost.PageTitle = BlogPost.PageTitle;
+                existingPost.Content = BlogPost.Content;
+                existingPost.ShortDescription = BlogPost.ShortDescription;
+                existingPost.FeaturedImageUrl = BlogPost.FeaturedImageUrl;
+                existingPost.UrlHandle = BlogPost.UrlHandle;
+                existingPost.PublishedDate = BlogPost.PublishedDate;
+                existingPost.Author = BlogPost.Author;
+                existingPost.Visible = BlogPost.Visible;
+                
+                await blogDbContext.SaveChangesAsync();
+            }
+                        
+            return RedirectToPage("/Admin/Blogs/List");
+        }
+    }
+```
+
+## Details page
+
+I have added a ``Details`` link to the ``List.cshtml`` page so that I can view the details of a Blog Post.
+
+This is the first version of the page.
+
+### Details.cshtml.cs
+
+```bash
+    public class DetailsModel : PageModel
+    {
+        [BindProperty]
+        public BlogPost BlogPost { get; set; }
+
+        private readonly BlogDbContext blogDbContext;
+
+        public DetailsModel(BlogDbContext blogDbContext)
+        {
+            this.blogDbContext = blogDbContext;
+        }
+
+        [HttpGet]
+        public async Task OnGet(int id)
+        {
+            BlogPost = await blogDbContext.BlogPosts.FindAsync(id);
+        }
+    }
+```
+
+### Details.cshtml
+
+```bash
+@page "{id:int}"
+@model Blog.Pages.Admin.Blogs.DetailsModel
+@{
+}
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="bg-secondary bg-opacity-10 py-2 mb-5">
+    <div class="container">
+        <h1>Blog Post Details</h1>
+    </div>
+</div>
+
+@if (Model.BlogPost != null)
+{
+    <div>
+        <div class="container">
+            
+            <div class="mb-3">
+                <label for="heading" class="form-label">Id</label>
+                <input type="text" class="form-control" id="id" asp-for="BlogPost.Id" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="heading" class="form-label">Heading</label>
+                <input type="text" class="form-control" id="heading" asp-for="BlogPost.Heading" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="pageTitle" class="form-label">Page Title</label>
+                <input type="text" class="form-control" id="pageTitle" asp-for="BlogPost.PageTitle" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="content" class="form-label">Content</label>
+                <textarea class="form-control" id="content" asp-for="BlogPost.Content" readonly></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="shortDescription" class="form-label">Short Description</label>
+                <input type="text" class="form-control" id="shortDescription" asp-for="BlogPost.ShortDescription" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="featuredImageUrl" class="form-label">Featured Image Url</label>
+                <input type="text" class="form-control" id="featuredImageUrl" asp-for="BlogPost.FeaturedImageUrl" readonly>
+                <span class="text-danger" asp-validation-for="BlogPost.FeaturedImageUrl"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="urlHandle" class="form-label">Url Handle</label>
+                <input type="text" class="form-control" id="urlHandle" asp-for="BlogPost.UrlHandle" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="publishedDate" class="form-label">Published Date</label>
+                <input type="date" class="form-control" id="publishedDate" asp-for="BlogPost.PublishedDate" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="author" class="form-label">Author</label>
+                <input type="text" class="form-control" id="author" asp-for="BlogPost.Author" readonly>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="isVisible" asp-for="BlogPost.Visible" readonly>
+                <label class="form-check-label" for="isVisible">
+                    Is Visible
+                </label>
+            </div>
+
+            <form method="get">
+                <div class="mb-3 d-flex justify-content-between">
+                    <button class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.BlogPost.Id">Edit</button>
+                    <button class="btn btn-warning" asp-page="./List">Blog Posts</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <p>Blog Post Not Found!</p>
+    </div>
+}
+```
+
+I have another version of the Razor Page.
+
+### Details.cshtml
+
+```bash
+@page "{id:int}"
+@model Blog.Pages.Admin.Blogs.DetailsModel
+@{
+}
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="bg-secondary bg-opacity-10 py-2 mb-5">
+    <div class="container">
+        <h1>Blog Post Details</h1>
+    </div>
+</div>
+
+@if (Model.BlogPost != null)
+{
+    <div>
+        <div class="container">
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.Id)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.Id)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.Heading)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.Heading)
+                </dd>
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.PageTitle)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.PageTitle)
+                </dd>
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.Content)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.Content)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.ShortDescription)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.ShortDescription)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.FeaturedImageUrl)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.FeaturedImageUrl)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.UrlHandle)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.UrlHandle)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.PublishedDate)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.PublishedDate)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.Author)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.Author)
+                </dd>
+
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.BlogPost.Visible)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.BlogPost.Visible)
+                </dd>
+            </dl>
+            <form method="get">
+                <div class="mb-3 d-flex justify-content-between">
+                    <button class="btn btn-primary" asp-page="./Edit" asp-route-id="@Model.BlogPost.Id">Edit</button>
+                    <button class="btn btn-warning" asp-page="./List">Blog Posts</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <p>Blog Post Not Found!</p>
+    </div>
+}
+```
+
+## Deleting a Blog Post
+ 
+ We are going to add a ``Delete`` button on the Edit page. First we have to change the ``Submit`` button.
+
+ ```bash
+    <button class="btn btn-primary" type="submit" asp-page-handler="Edit">Submit</button>
+ ```
+
+ We need to add the ``asp-page-handler`` attribute and give it a value of ``Edit`` so that it knows what ``Post`` method it needs to use.
+
+ In the Code Behind page we need to change the name of the ``Post()`` method to be able to choose between the Edit post method and Delete post method that we will add soon.
+
+ ```bash
+    [HttpPost]
+    public async Task<IActionResult> OnPostEdit()
+    {
+        ...
+ ```
+
+By adding the text ``Edit`` to the Post() method it will act as a page handler .
+
+We will also add an ``asp-page-handler`` attribute to our ``Delete`` button on the Razor page.
+
+```bash
+    <div class="mb-3 d-flex justify-content-between">
+        <button class="btn btn-primary" type="submit" asp-page-handler="Edit">Submit</button>   
+        <button class="btn btn-danger" type="submit" asp-page-handler="Delete">Delete</button>
+    </div>
+```
+
+In the Code behind page we will add the ``Delete`` Post() method.
+
+**Note:** if we call the method ``OnPost()`` ASP.Net Core knows that this method is a ``Post`` method. We can also add the ``[HttpPost]`` attribute to show that the method is a ``Post`` method as well.
+
+### Edit.cshtml.cs
+
+```bash
+    public async Task<IActionResult> OnPostDelete(int id)
+    {
+        var existingPost = await blogDbContext.BlogPosts.FindAsync(BlogPost.Id);
+    
+        if (existingPost != null)
+        {
+            blogDbContext.BlogPosts.Remove(existingPost);
+            await blogDbContext.SaveChangesAsync();
+    
+            return RedirectToPage("/Admin/Blogs/List");
+        }
+    
+        return Page();
+    }
+```
+
+**Note:** I have left the ``[HttpPost]`` attribute off this method. The name of the method, ``OnPostDelete()`` denotes that it is a Post() method.
+
+In this code I have created the return statement, ``return Page();``. We will add some proper error checking to add an error message later.
+
+When we test this method we see that it is deleting a Blog Post successfully.

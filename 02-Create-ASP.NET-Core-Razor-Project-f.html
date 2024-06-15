@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Create an ASP.Net Core Razor pages Project</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
+}
+
+h2 {
+	margin-top: 60px;
+}
+
+h4, h3 {
+	padding-top: 40px!;		
+}
+
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
+}
+
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
+
+}
+blockquote {
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
+}
+</style>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ASP.NET Core Razor Pages Web Development</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Create an ASP.Net Core Razor pages Project <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
+<h1 id="create-an-aspnet-core-razor-pages-project">Create an ASP.Net Core Razor pages Project</h1>
+<p>Use the <code>ASP.Net Core Razor pages</code> template.</p>
+<h2 id="create-a-domain-model">Create a Domain model</h2>
+<h3 id="blog-post-and-tag">Blog Post and Tag</h3>
+<p><img src="assets/images/domain-model.jpg" alt="Domain model" title="Domain model"></p>
+<h4 id="blogpostcs">BlogPost.cs</h4>
+<pre class="prettyprint"><code><div>    public class BlogPost
+    {
+        public Guid Id { get; <span class="hljs-built_in">set</span>; }
+        public string Heading { get; <span class="hljs-built_in">set</span>; }
+        public string PageTitle { get; <span class="hljs-built_in">set</span>; }
+        public string Content { get; <span class="hljs-built_in">set</span>; }
+        public string ShortDescription { get; <span class="hljs-built_in">set</span>; }
+        public string FeaturedImageUrl { get; <span class="hljs-built_in">set</span>; }
+        public string UrlHandle { get; <span class="hljs-built_in">set</span>; }
+        public DateTime PublishedDate { get; <span class="hljs-built_in">set</span>; }
+        public string Author { get; <span class="hljs-built_in">set</span>; }
+        public bool Visible { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<h4 id="tagcs">Tag.cs</h4>
+<pre class="prettyprint"><code><div>    public Guid Id { get; <span class="hljs-built_in">set</span>; }
+    public string Name { get; <span class="hljs-built_in">set</span>; }
+
+    public Guid BlogPostId { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<h3 id="add-entity-framework-core-packages">Add Entity Framework Core Packages</h3>
+<blockquote>
+<p>Install-Package Microsoft.EntityFrameworkCore.SqlServer<br>
+Install-Package Microsoft.EntityFrameworkCore.Tools</p>
+</blockquote>
+<h3 id="creating-the-dbcontext-class">Creating the DbContext Class</h3>
+<h4 id="blogdbcontextcs">BlogDbContext.cs</h4>
+<pre class="prettyprint"><code><div>    using Microsoft.EntityFrameworkCore;
+
+    namespace Blog.Data
+    {
+        public class BlogDbContext: DbContext
+        {
+
+        }
+    }
+</div></code></pre>
+<p>To inherit from EntityFramework's <code>DbContext</code> we add the following to the class definition.</p>
+<pre class="prettyprint"><code><div>    public class BlogDbContext: DbContext
+    {
+
+    }
+</div></code></pre>
+<p>Now create a constructor and add the <code>DbSet&lt;&gt;</code> collections.</p>
+<pre class="prettyprint"><code><div>    public class BlogDbContext : DbContext
+    {
+        public BlogDbContext(DbContextOptions options) : base(options)
+        {
+        }
+
+        public DbSet&lt;BlogPost&gt; BlogPosts { get; <span class="hljs-built_in">set</span>; }
+        public DbSet&lt;Tag&gt; Tags { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<h3 id="adding-a-connection-string-tp-the-database">Adding a Connection string tp the Database</h3>
+<p>In <code>appstettings.json</code> add.</p>
+<pre class="prettyprint"><code><div>    <span class="hljs-string">"ConnectionStrings"</span>: {
+      <span class="hljs-string">"BlogDb"</span>: <span class="hljs-string">"Server=TIGER;Database=Blog;Trusted_Connection=True;TrustServerCertificate=True;"</span>
+    }
+</div></code></pre>
+<p><strong>Note:</strong> I have to add <code>TrustServerCertificate=True;</code> to my connection string setting otherwise the connection doesn't work.</p>
+<h3 id="injecting-dbcontext-into-our-application">Injecting DbContext into our application</h3>
+<p>In the <code>builder.Services</code> section of <code>Program.cs</code>.</p>
+<pre class="prettyprint"><code><div>    builder.Services.AddDbContext&lt;BlogDbContext&gt;(options =&gt; 
+        options.UseSqlServer(builder.Configuration.GetConnectionString(<span class="hljs-string">"BlogDb"</span>)));
+</div></code></pre>
+<h3 id="run-the-ef-migrations">Run the EF Migrations</h3>
+<p>Run this.</p>
+<blockquote>
+<p>Add-Migration &quot;Initial migration&quot;</p>
+</blockquote>
+<p>To create the Database.</p>
+<blockquote>
+<p>Update-Database</p>
+</blockquote>
+
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+</body>
+</html>

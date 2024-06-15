@@ -1,379 +1,88 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>03-Creating-our-Blog-Post-Web-Page.md</title>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-
-<style>
-/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-
-body {
-	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
-	font-size: var(--vscode-markdown-font-size, 14px);
-	padding: 0 26px;
-	line-height: var(--vscode-markdown-line-height, 22px);
-	word-wrap: break-word;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Creating our Blog Post web page</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
 }
 
-#code-csp-warning {
-	position: fixed;
-	top: 0;
-	right: 0;
-	color: white;
-	margin: 16px;
-	text-align: center;
-	font-size: 12px;
-	font-family: sans-serif;
-	background-color:#444444;
-	cursor: pointer;
-	padding: 6px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+h2 {
+	margin-top: 60px;
 }
 
-#code-csp-warning:hover {
-	text-decoration: none;
-	background-color:#007acc;
-	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+h4, h3 {
+	padding-top: 40px!;		
 }
 
-body.scrollBeyondLastLine {
-	margin-bottom: calc(100vh - 22px);
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
 }
 
-body.showEditorSelection .code-line {
-	position: relative;
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
 }
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
 
-body.showEditorSelection .code-active-line:before,
-body.showEditorSelection .code-line:hover:before {
-	content: "";
-	display: block;
-	position: absolute;
-	top: 0;
-	left: -12px;
-	height: 100%;
 }
-
-body.showEditorSelection li.code-active-line:before,
-body.showEditorSelection li.code-line:hover:before {
-	left: -30px;
-}
-
-.vscode-light.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(0, 0, 0, 0.15);
-}
-
-.vscode-light.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(0, 0, 0, 0.40);
-}
-
-.vscode-light.showEditorSelection .code-line .code-line:hover:before {
-	border-left: none;
-}
-
-.vscode-dark.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(255, 255, 255, 0.4);
-}
-
-.vscode-dark.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(255, 255, 255, 0.60);
-}
-
-.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
-	border-left: none;
-}
-
-.vscode-high-contrast.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(255, 160, 0, 0.7);
-}
-
-.vscode-high-contrast.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(255, 160, 0, 1);
-}
-
-.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
-	border-left: none;
-}
-
-img {
-	max-width: 100%;
-	max-height: 100%;
-}
-
-a {
-	text-decoration: none;
-}
-
-a:hover {
-	text-decoration: underline;
-}
-
-a:focus,
-input:focus,
-select:focus,
-textarea:focus {
-	outline: 1px solid -webkit-focus-ring-color;
-	outline-offset: -1px;
-}
-
-hr {
-	border: 0;
-	height: 2px;
-	border-bottom: 2px solid;
-}
-
-h1 {
-	padding-bottom: 0.3em;
-	line-height: 1.2;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-}
-
-h1, h2, h3 {
-	font-weight: normal;
-}
-
-table {
-	border-collapse: collapse;
-}
-
-table > thead > tr > th {
-	text-align: left;
-	border-bottom: 1px solid;
-}
-
-table > thead > tr > th,
-table > thead > tr > td,
-table > tbody > tr > th,
-table > tbody > tr > td {
-	padding: 5px 10px;
-}
-
-table > tbody > tr + tr > td {
-	border-top: 1px solid;
-}
-
 blockquote {
-	margin: 0 7px 0 5px;
-	padding: 0 16px 0 10px;
-	border-left-width: 5px;
-	border-left-style: solid;
-}
-
-code {
-	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
-	font-size: 1em;
-	line-height: 1.357em;
-}
-
-body.wordWrap pre {
-	white-space: pre-wrap;
-}
-
-pre:not(.hljs),
-pre.hljs code > div {
-	padding: 16px;
-	border-radius: 3px;
-	overflow: auto;
-}
-
-pre code {
-	color: var(--vscode-editor-foreground);
-	tab-size: 4;
-}
-
-/** Theming */
-
-.vscode-light pre {
-	background-color: rgba(220, 220, 220, 0.4);
-}
-
-.vscode-dark pre {
-	background-color: rgba(10, 10, 10, 0.4);
-}
-
-.vscode-high-contrast pre {
-	background-color: rgb(0, 0, 0);
-}
-
-.vscode-high-contrast h1 {
-	border-color: rgb(0, 0, 0);
-}
-
-.vscode-light table > thead > tr > th {
-	border-color: rgba(0, 0, 0, 0.69);
-}
-
-.vscode-dark table > thead > tr > th {
-	border-color: rgba(255, 255, 255, 0.69);
-}
-
-.vscode-light h1,
-.vscode-light hr,
-.vscode-light table > tbody > tr + tr > td {
-	border-color: rgba(0, 0, 0, 0.18);
-}
-
-.vscode-dark h1,
-.vscode-dark hr,
-.vscode-dark table > tbody > tr + tr > td {
-	border-color: rgba(255, 255, 255, 0.18);
-}
-
-</style>
-
-<style>
-/* Tomorrow Theme */
-/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
-/* Original theme - https://github.com/chriskempson/tomorrow-theme */
-
-/* Tomorrow Comment */
-.hljs-comment,
-.hljs-quote {
-	color: #8e908c;
-}
-
-/* Tomorrow Red */
-.hljs-variable,
-.hljs-template-variable,
-.hljs-tag,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class,
-.hljs-regexp,
-.hljs-deletion {
-	color: #c82829;
-}
-
-/* Tomorrow Orange */
-.hljs-number,
-.hljs-built_in,
-.hljs-builtin-name,
-.hljs-literal,
-.hljs-type,
-.hljs-params,
-.hljs-meta,
-.hljs-link {
-	color: #f5871f;
-}
-
-/* Tomorrow Yellow */
-.hljs-attribute {
-	color: #eab700;
-}
-
-/* Tomorrow Green */
-.hljs-string,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-addition {
-	color: #718c00;
-}
-
-/* Tomorrow Blue */
-.hljs-title,
-.hljs-section {
-	color: #4271ae;
-}
-
-/* Tomorrow Purple */
-.hljs-keyword,
-.hljs-selector-tag {
-	color: #8959a8;
-}
-
-.hljs {
-	display: block;
-	overflow-x: auto;
-	color: #4d4d4c;
-	padding: 0.5em;
-}
-
-.hljs-emphasis {
-	font-style: italic;
-}
-
-.hljs-strong {
-	font-weight: bold;
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
 }
 </style>
-
-<style>
-/*
- * Markdown PDF CSS
- */
-
- body {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
-	padding: 0 12px;
-}
-
-pre {
-	background-color: #f8f8f8;
-	border: 1px solid #cccccc;
-	border-radius: 3px;
-	overflow-x: auto;
-	white-space: pre-wrap;
-	overflow-wrap: break-word;
-}
-
-pre:not(.hljs) {
-	padding: 23px;
-	line-height: 19px;
-}
-
-blockquote {
-	background: rgba(127, 127, 127, 0.1);
-	border-color: rgba(0, 122, 204, 0.5);
-}
-
-.emoji {
-	height: 1.4em;
-}
-
-code {
-	font-size: 14px;
-	line-height: 19px;
-}
-
-/* for inline code */
-:not(pre):not(.hljs) > code {
-	color: #C9AE75; /* Change the old color so it seems less like an error */
-	font-size: inherit;
-}
-
-/* Page Break : use <div class="page"/> to insert page break
--------------------------------------------------------- */
-.page {
-	page-break-after: always;
-}
-
-</style>
-
-<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
-  <script>
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
-          ? 'dark'
-          : 'default'
-    });
-  </script>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ASP.NET Core Razor Pages Web Development</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Creating our Blog Post web page <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
 <h1 id="creating-our-blog-post-web-page-and-actions">Creating our Blog Post web page and Actions</h1>
 <h2 id="layoutcshtml">_Layout.cshtml</h2>
 <p>We will create a Black Navbar for all of the pages.</p>
-<pre class="hljs"><code><div>   &lt;header&gt;
+<pre class="prettyprint"><code><div>   &lt;header&gt;
        &lt;nav class=<span class="hljs-string">"navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3"</span>&gt;
 </div></code></pre>
 <p>In the Navbar we have added <code>navbar-dark</code> and <code>bg-dark</code>.</p>
 <p>We also change the two other menu items to <code>text-white</code> so that we can see them.</p>
-<pre class="hljs"><code><div>&lt;li class=<span class="hljs-string">"nav-item"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;li class=<span class="hljs-string">"nav-item"</span>&gt;
     &lt;a class=<span class="hljs-string">"nav-link text-white"</span> asp-area=<span class="hljs-string">""</span> asp-page=<span class="hljs-string">"/Index"</span>&gt;Home&lt;/a&gt;
 &lt;/li&gt;
 &lt;li class=<span class="hljs-string">"nav-item"</span>&gt;
@@ -387,13 +96,13 @@ code {
 <p>Add a new Empty Razor page named <code>Add</code> which will be used to create a new Blog Post.</p>
 <p>These are the two templates that are built for you.</p>
 <h3 id="addcshtml">Add.cshtml</h3>
-<pre class="hljs"><code><div>    @page
+<pre class="prettyprint"><code><div>    @page
     @model Blog.Pages.Admin.Blogs.AddModel
     @{
     }
 </div></code></pre>
 <h3 id="addcshtmlcs">Add.cshtml.cs</h3>
-<pre class="hljs"><code><div>    using Microsoft.AspNetCore.Mvc;
+<pre class="prettyprint"><code><div>    using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.RazorPages;
 
     namespace Blog.Pages.Admin.Blogs
@@ -411,7 +120,7 @@ code {
 <p><a href="https://localhost:7100/admin/blogs/add">https://localhost:7100/admin/blogs/add</a></p>
 </blockquote>
 <p>Go back to the <code>_layout.cs</code> page and add an Admin section to the menu.</p>
-<pre class="hljs"><code><div>&lt;li class=<span class="hljs-string">"nav-item dropdown"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;li class=<span class="hljs-string">"nav-item dropdown"</span>&gt;
     &lt;a class=<span class="hljs-string">"nav-link dropdown-toggle"</span> href=<span class="hljs-string">"#"</span> role=<span class="hljs-string">"button"</span> data-bs-toggle=<span class="hljs-string">"dropdown"</span> 
         aria-expanded=<span class="hljs-string">"false"</span> id=<span class="hljs-string">"navbarDropdownAdmin"</span>&gt;
         Admin
@@ -426,7 +135,7 @@ code {
 <p>This will look like.</p>
 <p><img src="assets/images/dropdown-menu.jpg" alt="Dropdown menu" title="Dropdown menu"></p>
 <p>Make another small change to the <code>_layout.cs</code> page. Remove the Container class div from around <code>main</code>.</p>
-<pre class="hljs"><code><div>    &lt;/header&gt;
+<pre class="prettyprint"><code><div>    &lt;/header&gt;
     &lt;main role=<span class="hljs-string">"main"</span> class=<span class="hljs-string">"pb-3"</span>&gt;
         @RenderBody()
     &lt;/main&gt;
@@ -435,7 +144,7 @@ code {
 </div></code></pre>
 <h2 id="create-an-add-blog-post-razor-form-and-bind-property">Create an Add Blog Post Razor form and Bind property</h2>
 <p><code>Add.cshtml</code></p>
-<pre class="hljs"><code><div>@page
+<pre class="prettyprint"><code><div>@page
 @model Blog.Pages.Admin.Blogs.AddModel
 @{
 }
@@ -506,7 +215,7 @@ code {
 <p>In our CodeBehind page we have an <code>OnGet()</code> method and we also need an <code>OnPost()</code> method.</p>
 <p>There are a number of ways that we can get the data from the Form to the <code>OnPost()</code> method.</p>
 <p>We have added the <code>name</code> attribute to each field and will use this to retrieve the data in the CodeBehind page.</p>
-<pre class="hljs"><code><div>    public void <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+<pre class="prettyprint"><code><div>    public void <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
     {
         var heading = Request.Form[<span class="hljs-string">"heading"</span>];
         var pageTitle = Request.Form[<span class="hljs-string">"pageTitle"</span>];
@@ -523,17 +232,17 @@ code {
 </div></code></pre>
 <p>This is the old way of returning data. it grabs the <code>name</code> field from the form.</p>
 <p>A slightly better way is to add properties to the CodeBehind page. First you need to change all of the <code>name</code> attributes on the <code>Add.cshtml</code> page to <code>asp-for</code> tag helpers. E.g.</p>
-<pre class="hljs"><code><div>    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"heading"</span> asp-for=<span class="hljs-string">"Heading"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> required class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"heading"</span> asp-for=<span class="hljs-string">"Heading"</span>&gt;
 </div></code></pre>
 <p>In the <code>Add.cshtml.cs</code> CodeBehind.</p>
-<pre class="hljs"><code><div>    [BindProperty]
+<pre class="prettyprint"><code><div>    [BindProperty]
     public string Heading { get; <span class="hljs-built_in">set</span>; }
     
     [BindProperty]
     public string PageTitle { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>In the <code>OnPost()</code> method you can call these properties to get their values once you Post the <code>Add</code> page.</p>
-<pre class="hljs"><code><div>    public void <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+<pre class="prettyprint"><code><div>    public void <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
     {
         var heading = Heading;
         var pageTitle = PageTitle;
@@ -541,7 +250,7 @@ code {
 </div></code></pre>
 <p>This method will clutter up the CodeBehind class. A much better idea is to create a ViewModel. We do this by creating a <code>ViewModels</code> folder inside the <code>Models</code> folder.</p>
 <p>Now create a class named <code>AddBlogPost.cs</code> in <code>ViewModels</code>.</p>
-<pre class="hljs"><code><div>    public class AddBlogPost
+<pre class="prettyprint"><code><div>    public class AddBlogPost
     {
         [Required]
         public string Heading { get; <span class="hljs-built_in">set</span>; }
@@ -571,7 +280,7 @@ code {
     }
 </div></code></pre>
 <p>Now we have to change the <code>Add.cshtml</code> page.</p>
-<pre class="hljs"><code><div>@page
+<pre class="prettyprint"><code><div>@page
 @model Blog.Pages.Admin.Blogs.AddModel
 @{
 }
@@ -642,11 +351,11 @@ code {
 <h2 id="save-to-database">Save to Database</h2>
 <p>We can now work on the CodeBehind. The first thing we need to do is create an object to store the Form content that a user enters. We will use the ViewModel class that we created, <code>AddBlogPost</code>.</p>
 <p>We need to use the <code>[BindProperty]</code> to bind the Form data.</p>
-<pre class="hljs"><code><div>    [BindProperty]
+<pre class="prettyprint"><code><div>    [BindProperty]
     public AddBlogPost AddBlogPostRequest { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>The next thing we need to do is inject the DbContext into class using the constructor. We created this context in our <code>Program.cs</code> class. We can use this context in our methods in the class.</p>
-<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext
+<pre class="prettyprint"><code><div>    private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext
     
     public AddModel(BlogDbContext blogDbContext)
     {
@@ -655,7 +364,7 @@ code {
 </div></code></pre>
 <p>The Form content that is in the <code>AddBlogPostRequest</code> object needs to be mapped to the Domain model object, <code>BlogPost</code>.</p>
 <p>Create a new <code>BlogPost</code> object in the <code>OnPost()</code> method and map the fields to it.</p>
-<pre class="hljs"><code><div>    var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
+<pre class="prettyprint"><code><div>    var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
     {
         Heading = AddBlogPostRequest.Heading,
         PageTitle = AddBlogPostRequest.PageTitle,
@@ -670,14 +379,14 @@ code {
 </div></code></pre>
 <p>To save the <code>blogPost</code> object into the database we need to use two steps.</p>
 <p>The first step is to add the <code>blogPost</code> object into the DBSet method, <code>BlogPosts</code>.</p>
-<pre class="hljs"><code><div>    await blogDbContext.BlogPosts.AddAsync(blogPost);
+<pre class="prettyprint"><code><div>    await blogDbContext.BlogPosts.AddAsync(blogPost);
 </div></code></pre>
 <p>Next we need to use the DbContext to save the object to the database.</p>
-<pre class="hljs"><code><div>    await blogDbContext.SaveChangesAsync();
+<pre class="prettyprint"><code><div>    await blogDbContext.SaveChangesAsync();
 </div></code></pre>
 <p>If you don't do this step it won't save the changes to the database.</p>
 <h3 id="addcshtmlcs">Add.cshtml.cs</h3>
-<pre class="hljs"><code><div>    namespace Blog.Pages.Admin.Blogs
+<pre class="prettyprint"><code><div>    namespace Blog.Pages.Admin.Blogs
     {
         public class AddModel : PageModel
         {
@@ -721,17 +430,17 @@ code {
 <p>We will create a List view named <code>List.cshtml</code> in the <code>Admin-&gt;Blogs</code> folder.</p>
 <p>In the CodeBehind class inject the DbContext into the Constructor.</p>
 <p>To create a list of <code>BlogPosts</code> you have to create a public List of <code>BlogPost</code>. By doing this the list can be available to the Razor page. We do this with.</p>
-<pre class="hljs"><code><div>    public List&lt;BlogPost&gt; BlogPosts { get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public List&lt;BlogPost&gt; BlogPosts { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>To create the list of <code>BlogPosts</code> use the <code>OnGetAsync()</code> method with this statement.</p>
-<pre class="hljs"><code><div>    public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+<pre class="prettyprint"><code><div>    public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
     {
         BlogPosts = await blogDbContext.BlogPosts.ToListAsync();
     }
 </div></code></pre>
 <p>Once again we are using the DbContext to bring back a list of DBSet <code>BlogPosts</code> and then creating a list with <code>ToListAsync()</code>.</p>
 <h3 id="listcshtmlcs">List.cshtml.cs</h3>
-<pre class="hljs"><code><div>    public class ListModel : PageModel
+<pre class="prettyprint"><code><div>    public class ListModel : PageModel
     {
         public List&lt;BlogPost&gt; BlogPosts { get; <span class="hljs-built_in">set</span>; }
 
@@ -750,7 +459,7 @@ code {
 </div></code></pre>
 <p><strong>Note:</strong> because the list of <code>BlogPosts</code> in <code>OnGetAsync()</code> is public they are available to <code>List.cshtml</code>.</p>
 <h3 id="listcshtml">List.cshtml</h3>
-<pre class="hljs"><code><div>@page
+<pre class="prettyprint"><code><div>@page
 @model Blog.Pages.Admin.Blogs.ListModel
 @{
 }
@@ -797,20 +506,20 @@ code {
 <h2 id="edit-or-update-page">Edit or Update page</h2>
 <p>On our list page we have an Edit button for each row. Inside the link we have the <code>@blogPost.Id</code> and we will use this to get the Blog Post from the database.</p>
 <p>At the top of the <code>Edit.cshtml</code> page we need to add the following.</p>
-<pre class="hljs"><code><div>    @page <span class="hljs-string">"{id:int}"</span>
+<pre class="prettyprint"><code><div>    @page <span class="hljs-string">"{id:int}"</span>
 </div></code></pre>
 <p>This is the <code>id</code> route parameter and we make it type safe by adding the type (<code>int</code>) next to it.</p>
 <p>In the <code>Edit.cshtml.cs</code> CodeBehind class we will add the route parameter to the <code>OnGet()</code> method.</p>
 <p>We inject our DbContext and create a public property to hold the <code>BlogPost</code> object.</p>
 <p><strong>Note:</strong> I wasn't aware that by making a public property you make it available to the Razor page. This is important to remember.</p>
 <p>We then use the DbContext to return the Post that is identified by the route parameter.</p>
-<pre class="hljs"><code><div>    public async Task OnGet(int id)
+<pre class="prettyprint"><code><div>    public async Task OnGet(int id)
     {
         BlogPost = await blogDbContext.BlogPosts.FindAsync(id);
     }
 </div></code></pre>
 <h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
-<pre class="hljs"><code><div>    public class EditModel : PageModel
+<pre class="prettyprint"><code><div>    public class EditModel : PageModel
     {
         [BindProperty]
         public BlogPost BlogPost { get; <span class="hljs-built_in">set</span>; }
@@ -830,7 +539,7 @@ code {
 </div></code></pre>
 <p><strong>Note:</strong> before I build the Razor page I can test that the DbContext is returning the Post by adding a breakpoint on the DbContext statement in the <code>OnGet()</code> method. When I run this I can see my data in <code>BlogPost</code>.</p>
 <h3 id="editcshtml">Edit.cshtml</h3>
-<pre class="hljs"><code><div>@page <span class="hljs-string">"{id:int}"</span>
+<pre class="prettyprint"><code><div>@page <span class="hljs-string">"{id:int}"</span>
 @model Blog.Pages.Admin.Blogs.EditModel
 @{
 }
@@ -919,7 +628,7 @@ code {
 <p>When I run this it returns the Edit Form. We are now ready to write the <code>OnPost()</code> method.</p>
 <p><strong>Note:</strong> We need to add <code>[BindProperty]</code> to our <code>BlogPost</code> property. This will make the property have 2-way binding and this is needed for both the <code>OnGet()</code> and <code>OnPost()</code> methods.</p>
 <h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
-<pre class="hljs"><code><div>    public class EditModel : PageModel
+<pre class="prettyprint"><code><div>    public class EditModel : PageModel
     {
         [BindProperty]
         public BlogPost BlogPost { get; <span class="hljs-built_in">set</span>; }
@@ -963,7 +672,7 @@ code {
 <p>I have added a <code>Details</code> link to the <code>List.cshtml</code> page so that I can view the details of a Blog Post.</p>
 <p>This is the first version of the page.</p>
 <h3 id="detailscshtmlcs">Details.cshtml.cs</h3>
-<pre class="hljs"><code><div>    public class DetailsModel : PageModel
+<pre class="prettyprint"><code><div>    public class DetailsModel : PageModel
     {
         [BindProperty]
         public BlogPost BlogPost { get; <span class="hljs-built_in">set</span>; }
@@ -983,7 +692,7 @@ code {
     }
 </div></code></pre>
 <h3 id="detailscshtml">Details.cshtml</h3>
-<pre class="hljs"><code><div>@page <span class="hljs-string">"{id:int}"</span>
+<pre class="prettyprint"><code><div>@page <span class="hljs-string">"{id:int}"</span>
 @model Blog.Pages.Admin.Blogs.DetailsModel
 @{
 }
@@ -1074,7 +783,7 @@ code {
 </div></code></pre>
 <p>I have another version of the Razor Page.</p>
 <h3 id="detailscshtml">Details.cshtml</h3>
-<pre class="hljs"><code><div>@page <span class="hljs-string">"{id:int}"</span>
+<pre class="prettyprint"><code><div>@page <span class="hljs-string">"{id:int}"</span>
 @model Blog.Pages.Admin.Blogs.DetailsModel
 @{
 }
@@ -1176,18 +885,18 @@ code {
 </div></code></pre>
 <h2 id="deleting-a-blog-post">Deleting a Blog Post</h2>
 <p>We are going to add a <code>Delete</code> button on the Edit page. First we have to change the <code>Submit</code> button.</p>
-<pre class="hljs"><code><div>   &lt;button class=<span class="hljs-string">"btn btn-primary"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> asp-page-handler=<span class="hljs-string">"Edit"</span>&gt;Submit&lt;/button&gt;
+<pre class="prettyprint"><code><div>   &lt;button class=<span class="hljs-string">"btn btn-primary"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> asp-page-handler=<span class="hljs-string">"Edit"</span>&gt;Submit&lt;/button&gt;
 </div></code></pre>
 <p>We need to add the <code>asp-page-handler</code> attribute and give it a value of <code>Edit</code> so that it knows what <code>Post</code> method it needs to use.</p>
 <p>In the Code Behind page we need to change the name of the <code>Post()</code> method to be able to choose between the Edit post method and Delete post method that we will add soon.</p>
-<pre class="hljs"><code><div>   [HttpPost]
+<pre class="prettyprint"><code><div>   [HttpPost]
    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostEdit</span></span>()
    {
        ...
 </div></code></pre>
 <p>By adding the text <code>Edit</code> to the Post() method it will act as a page handler .</p>
 <p>We will also add an <code>asp-page-handler</code> attribute to our <code>Delete</code> button on the Razor page.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"mb-3 d-flex justify-content-between"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"mb-3 d-flex justify-content-between"</span>&gt;
         &lt;button class=<span class="hljs-string">"btn btn-primary"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> asp-page-handler=<span class="hljs-string">"Edit"</span>&gt;Submit&lt;/button&gt;   
         &lt;button class=<span class="hljs-string">"btn btn-danger"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> asp-page-handler=<span class="hljs-string">"Delete"</span>&gt;Delete&lt;/button&gt;
     &lt;/div&gt;
@@ -1195,7 +904,7 @@ code {
 <p>In the Code behind page we will add the <code>Delete</code> Post() method.</p>
 <p><strong>Note:</strong> if we call the method <code>OnPost()</code> ASP.Net Core knows that this method is a <code>Post</code> method. We can also add the <code>[HttpPost]</code> attribute to show that the method is a <code>Post</code> method as well.</p>
 <h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
-<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; OnPostDelete(int id)
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; OnPostDelete(int id)
     {
         var existingPost = await blogDbContext.BlogPosts.FindAsync(BlogPost.Id);
     
@@ -1214,5 +923,20 @@ code {
 <p>In this code I have created the return statement, <code>return Page();</code>. We will add some proper error checking to add an error message later.</p>
 <p>When we test this method we see that it is deleting a Blog Post successfully.</p>
 
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
 </body>
 </html>
