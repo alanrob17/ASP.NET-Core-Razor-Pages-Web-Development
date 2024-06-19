@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>The Repository Pattern</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
+}
+
+h2 {
+	margin-top: 60px;
+}
+
+h4, h3 {
+	padding-top: 40px!;		
+}
+
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
+}
+
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
+
+}
+blockquote {
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
+}
+</style>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ASP.NET Core Razor Pages Web Development</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">The Repository Pattern <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
+<h1 id="the-repository-pattern">The Repository Pattern</h1>
+<p><img src="assets/images/repository-pattern.jpg" alt="Domain model" title="Domain model"></p>
+<p>We are going to implement the Repository pattern into our application.</p>
+<p>The Repository pattern sits between our application and the database using a collection like interface to access the domain objects.</p>
+<p>A Repository pattern isolates all of the code from the rest of the application. The advantage of this is that if you need to make changes to you application you only have to change the Repository. The web pages that implement these changes will remain the same.</p>
+<h2 id="creating-a-repository">Creating a Repository</h2>
+<p>First you have to create an interface for the Repository. After that you have to inject the Repository inside your <code>Program.cs</code> services collection and then you can use your repository wherever it is needed.</p>
+<p>Create a <code>Repository</code> folder in your project. Inside this we will create an Interface for our <code>BlogPost</code> domain named  <code>IBlogPostRepository</code>.</p>
+<h3 id="iblogpostrepository">IBlogPostRepository</h3>
+<pre class="prettyprint"><code><div>    public interface IBlogPostRepository
+    {
+        Task&lt;IEnumerable&lt;BlogPost&gt;&gt; GetAllAsync();
+        Task&lt;BlogPost&gt; GetAsync(int id);
+        Task&lt;BlogPost&gt; AddAsync(BlogPost blogPost);
+        Task&lt;BlogPost&gt; UpdateAsync(BlogPost blogPost);
+        Task&lt;bool&gt; DeleteAsync(int id);
+    }
+</div></code></pre>
+<p>These are the methods that we will need in our Repository. Note that we name all methods with an <code>Async</code> suffix.</p>
+<p>Now Create a <code>BlogPostRepository</code> class and let it inherit from <code>IBlogPostRepository</code>. We are now able to implement all of our methods.</p>
+<p>Note that you get an error on <code>IBlogPostRepository</code> and this means that you haven't implemented all of the Interface methods in your class.</p>
+<p>To do this we can right-click on <code>IBlogPostRepository</code> and there is an option to <code>Implement Interface</code>. Accept this and it will scaffold your class.</p>
+<pre class="prettyprint"><code><div>    public class BlogPostRepository : IBlogPostRepository
+    {
+        public Task&lt;BlogPost&gt; AddAsync(BlogPost blogPost)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task&lt;bool&gt; DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task&lt;IEnumerable&lt;BlogPost&gt;&gt; <span class="hljs-function"><span class="hljs-title">GetAllAsync</span></span>()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task&lt;BlogPost&gt; GetAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task&lt;BlogPost&gt; UpdateAsync(BlogPost blogPost)
+        {
+            throw new NotImplementedException();
+        }
+    }
+</div></code></pre>
+<p><strong>Note:</strong> all <code>async</code> annotations are missing before the <code>Task</code> implementations. Add these.</p>
+<p>Next add a constructor and inject the <code>BlogDbContext</code> context so that we can use it in all of our methods.</p>
+<p>The first method we will work with is the <code>AddAsync()</code> method. To complete this we will have to go to the <code>Add()</code> Razor page's Code Behind class and copy the two <code>async</code> method calls from the <code>OnPost()</code> method.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;BlogPost&gt; AddAsync(BlogPost blogPost)
+    {
+        await blogDbContext.BlogPosts.AddAsync(blogPost);
+        await blogDbContext.SaveChangesAsync();
+
+        <span class="hljs-built_in">return</span> blogPost;
+    }
+</div></code></pre>
+<h3 id="getallasync-method">GetAllAsync() method</h3>
+<pre class="prettyprint"><code><div>    public async Task&lt;IEnumerable&lt;BlogPost&gt;&gt; <span class="hljs-function"><span class="hljs-title">GetAllAsync</span></span>()
+    {
+        <span class="hljs-built_in">return</span> await blogDbContext.BlogPosts.ToListAsync();
+    }
+</div></code></pre>
+<p><strong>Note:</strong> we get an error in <code>ToListAsync()</code> and to fix this you need to bring in the using statement for <code>Microsoft.EntityFrameworkCore</code>.</p>
+<h3 id="updateasync-method">UpdateAsync() method</h3>
+<pre class="prettyprint"><code><div>    public async Task&lt;BlogPost&gt; UpdateAsync(BlogPost blogPost)
+    {
+        var existingPost = await blogDbContext.BlogPosts.FindAsync(blogPost.Id);
+
+        <span class="hljs-keyword">if</span> (existingPost != null)
+        {
+            existingPost.Heading = blogPost.Heading;
+            existingPost.PageTitle = blogPost.PageTitle;
+            existingPost.Content = blogPost.Content;
+            existingPost.ShortDescription = blogPost.ShortDescription;
+            existingPost.FeaturedImageUrl = blogPost.FeaturedImageUrl;
+            existingPost.UrlHandle = blogPost.UrlHandle;
+            existingPost.PublishedDate = blogPost.PublishedDate;
+            existingPost.Author = blogPost.Author;
+            existingPost.Visible = blogPost.Visible;
+
+            await blogDbContext.SaveChangesAsync();
+        }
+
+        <span class="hljs-built_in">return</span> existingPost;
+    }
+</div></code></pre>
+<p>In this case we are finding the entity from the <code>FindAsync()</code> method. If the entity has been found we save it to an <code>existingPost</code> object. We then replace the <code>existingPost</code> object with the updated content from <code>blogPost</code>. We then <code>SaveChangesAsync()</code>.</p>
+<h3 id="deleteasync-method">DeleteAsync() method</h3>
+<pre class="prettyprint"><code><div>    public async Task&lt;bool&gt; DeleteAsync(int id)
+    {
+        var existingPost = await blogDbContext.BlogPosts.FindAsync(id);
+    
+        <span class="hljs-keyword">if</span> (existingPost != null)
+        {
+            blogDbContext.BlogPosts.Remove(existingPost);
+            await blogDbContext.SaveChangesAsync();
+    
+            <span class="hljs-built_in">return</span> <span class="hljs-literal">true</span>;
+        }
+
+        <span class="hljs-built_in">return</span> <span class="hljs-literal">false</span>;
+    }
+</div></code></pre>
+<p>Once again we try to find the entity based on the <code>id</code> value. If found we remove it and return a <code>true</code> value.</p>
+<h2 id="injecting-repositories-in-our-services">Injecting Repositories in our Services</h2>
+<p>We now need to inject the Repository into the services of our application. Inside the Services section of <code>Program.cs</code> we add this service.</p>
+<pre class="prettyprint"><code><div>    builder.Services.AddScoped&lt;IBlogPostRepository, BlogPostRepository&gt;();
+</div></code></pre>
+<p>We are now ready to use Dependency Injection to inject the Repository service into our Web pages code.</p>
+<p>In each of the Code Behind files we have to change our constructor to e.g.</p>
+<pre class="prettyprint"><code><div>    public IBlogPostRepository blogPostRepository { get; }
+
+    public AddModel(IBlogPostRepository blogPostRepository)
+    {
+        this.blogPostRepository = blogPostRepository;
+    }
+</div></code></pre>
+<p><strong>Note:</strong> we have removed the <code>BlogDbContext</code> because we don't need it anymore.</p>
+<h3 id="addcshtmlcs">Add.cshtml.cs</h3>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
+        {
+            Heading = AddBlogPostRequest.Heading,
+            PageTitle = AddBlogPostRequest.PageTitle,
+            Content = AddBlogPostRequest.Content,
+            ShortDescription = AddBlogPostRequest.ShortDescription,
+            FeaturedImageUrl = AddBlogPostRequest.FeaturedImageUrl,
+            UrlHandle = AddBlogPostRequest.UrlHandle,
+            PublishedDate = AddBlogPostRequest.PublishedDate,
+            Author = AddBlogPostRequest.Author,
+            Visible = AddBlogPostRequest.Visible
+        };
+
+        await blogPostRepository.AddAsync(blogPost);
+        
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+    }
+</div></code></pre>
+<p>We have changed the database call to a Repository call. We are now using best practice by calling the Repository instead of the database.</p>
+<p><strong>Important note:</strong> if we decide that we want to change our database to another format such as MongoDB. MySQl, etc, all we have to do is make changes to the Repository. The Web pages will not have to be changed at all.</p>
+<h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
+<pre class="prettyprint"><code><div>    public async Task OnGet(BlogPost id)
+    {
+        BlogPost = await blogPostRepository.GetAsync(id);
+    }
+
+    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostEdit</span></span>()
+    {
+        await blogPostRepository.UpdateAsync(BlogPost);
+
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+    }
+
+    public async Task&lt;IActionResult&gt; OnPostDelete(int id)
+    {
+        var deleted = await blogPostRepository.DeleteAsync(BlogPost.Id);
+
+        <span class="hljs-keyword">if</span> (deleted)
+        {
+            <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+        }
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>Once we add all of the Repository methods our page code looks much cleaner.</p>
+<h3 id="listcshtmlcs">List.cshtml.cs</h3>
+<pre class="prettyprint"><code><div>    public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        BlogPosts = (await blogPostRepository.GetAllAsync())?.ToList();
+    }
+</div></code></pre>
+<p><strong>Note:</strong> we have to enclose the <code>await</code> statement in brackets to get all the BlogPosts and then we can change the BlogPosts into a <code>List&lt;BlogPost&gt;</code> list.</p>
+<h3 id="detailscshtmlcs">Details.cshtml.cs</h3>
+<pre class="prettyprint"><code><div>    public async Task OnGet(int id)
+    {
+        BlogPost = await blogPostRepository.GetAsync(id);
+    }
+</div></code></pre>
+<p>This will bring back one <code>BlogPost</code> that we can use to show its details.</p>
+<p>Once we have finished adding the Repository to all of the pages we need to do some testing to make sure our application is working correctly.</p>
+<h2 id="showing-notifications-using-viewdata">Showing notifications using ViewData</h2>
+<p>We want to create notification messages every time a database task has been completed. For example, when a user edits a BlogPost we want to show a Success message.</p>
+<p>We will use <code>ViewData</code> which is a container that passes data from the PageModel to the Content page. <code>ViewData</code> is a dictionary of objects with a string based key.</p>
+<p>In page.</p>
+<pre class="prettyprint"><code><div>    ViewData[<span class="hljs-string">"MyString"</span>] = <span class="hljs-string">"Hello World!"</span>;
+</div></code></pre>
+<p>In View</p>
+<pre class="prettyprint"><code><div>    &lt;h2&gt;@ViewData[<span class="hljs-string">"MyString"</span>]&lt;/h2&gt;
+</div></code></pre>
+<p>In PageModel.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostEdit</span></span>()
+    {
+        await blogPostRepository.UpdateAsync(BlogPost);
+
+        ViewData[<span class="hljs-string">"Message"</span>] = <span class="hljs-string">"Post was updated!"</span>;
+        
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>In View.</p>
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"container"</span>&gt;
+    &lt;h3 class=<span class="hljs-string">"alert-success"</span>&gt;@ViewData[<span class="hljs-string">"Message"</span>]&lt;/h3&gt;
+    &lt;form method=<span class="hljs-string">"post"</span>&gt;
+        &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+            &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"heading"</span> class=<span class="hljs-string">"form-label"</span>&gt;Id&lt;/label&gt;
+            &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"id"</span> asp-for=<span class="hljs-string">"BlogPost.Id"</span> <span class="hljs-built_in">readonly</span>&gt;
+        &lt;/div&gt;
+</div></code></pre>
+<p><img src="assets/images/view-data.jpg" alt="ViewData message" title="ViewData message"></p>
+<h2 id="showing-notifications-using-tempdata">Showing notifications using TempData</h2>
+<p><code>TempData</code> is a way of passing data from one page to another. For example, You want to pass the success message from the <code>Edit</code> page to the <code>List</code> page.</p>
+<p><code>TempData</code> is a storage container for data that needs to be available to a separate HTTP request. We can make use of <code>TempData</code> to show feedback to a user after a form submission that results in a user being redirected to another page (<code>Post-Redirect-Get</code>).</p>
+<p>In page.</p>
+<pre class="prettyprint"><code><div>    TempData[<span class="hljs-string">"MyString"</span>] = <span class="hljs-string">"Hello World!"</span>;
+</div></code></pre>
+<p>In View.</p>
+<pre class="prettyprint"><code><div>    &lt;h2&gt;@TempData[<span class="hljs-string">"MyString"</span>]&lt;/h2&gt;
+</div></code></pre>
+<p>We will <code>Add</code> a new Blog Post and grab the <code>PageTitle</code>. Then we will use <code>TempData</code> to pass a message to the <code>List</code> page.</p>
+<p>In the <code>OnPost()</code> method in <code>Add.cshtml.cs</code> we will use <code>TempData</code> to create a message.</p>
+<pre class="prettyprint"><code><div>    var result = await blogPostRepository.AddAsync(blogPost);
+
+    TempData[<span class="hljs-string">"Message"</span>] = $<span class="hljs-string">"A new Post with Title: \"{result.PageTitle}\" has been created!"</span>;
+
+    <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+</div></code></pre>
+<p>Now in the <code>List.cshtml</code> view page.</p>
+<pre class="prettyprint"><code><div>@{
+    string message = (string)ViewData[<span class="hljs-string">"Message"</span>];
+}
+
+@<span class="hljs-keyword">if</span> (!string.IsNullOrWhiteSpace(message))
+{
+    &lt;div class=<span class="hljs-string">"container mb-5"</span>&gt;
+        &lt;div class=<span class="hljs-string">"alert alert-success alert-dismissible fade show mb-5 rounded-2"</span> role=<span class="hljs-string">"alert"</span>&gt;
+            @Html.Raw(message)
+            &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"button"</span> class=<span class="hljs-string">"btn-close"</span> data-bs-dismiss=<span class="hljs-string">"alert"</span> aria-label=<span class="hljs-string">"Close"</span>&gt;&lt;/button&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+}
+</div></code></pre>
+<p>Add a new message to see the success message.</p>
+<p><img src="assets/images/temp-data-message.jpg" alt="TempData message" title="TempData message"></p>
+<h2 id="generic-notifications">Generic notifications</h2>
+<p>On our <code>Edit</code> CodeBehind page we have a success message but what happens if we have an error?</p>
+<p>We have <code>ViewData</code> storing our data but a better method would be to create a View Model. In the View Model you can have properties with different messages.</p>
+<p>In <code>Models-&gt;ViewModels</code> make a new View Model class.</p>
+<h3 id="notificationcs">Notification.cs</h3>
+<pre class="prettyprint"><code><div>    public class Notification
+    {
+        public string Message { get; <span class="hljs-built_in">set</span>; }
+
+        public NotificationType Type { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<p>This will be a generic class that will be used to store notifications for all of our database interactions.</p>
+<p>We need to create an <code>Enum</code> to hold the type of notification we just carried out. <code>Success</code>, <code>Info</code> or <code>Error</code>.</p>
+<p>Create an <code>Enums</code> folder. Add a class into this folder named <code>NotificationType</code>. Change the word <code>class</code> to <code>enum</code>.</p>
+<pre class="prettyprint"><code><div>    public enum NotificationType
+    {
+        Success,
+        Info,
+        Error
+    }
+</div></code></pre>
+<p>In the <code>Edit.cshtml.cs</code> Page Model we can now use this <code>Notification</code> class to show a generic message.</p>
+<p>We will change the <code>OnPost()</code> method.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostEdit</span></span>()
+    {
+        await blogPostRepository.UpdateAsync(BlogPost);
+
+        var blogPostDomainModel = new BlogPost
+        {
+            Id = BlogPost.Id,
+            Heading = BlogPost.Heading,
+            PageTitle = BlogPost.PageTitle,
+            Content = BlogPost.Content,
+            ShortDescription = BlogPost.ShortDescription,
+            FeaturedImageUrl = BlogPost.FeaturedImageUrl,
+            UrlHandle = BlogPost.UrlHandle,
+            PublishedDate = BlogPost.PublishedDate,
+            Author = BlogPost.Author,
+            Visible = BlogPost.Visible,
+        };
+
+        await blogPostRepository.UpdateAsync(blogPostDomainModel);
+
+        ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+        {
+            Type = Enums.NotificationType.Success,
+            Message = <span class="hljs-string">"Record updated successfully!"</span>
+        };
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>In this code we create <code>ViewData</code> Notification that has a <code>Type</code> and <code>Message</code> field. These will create a notification on how our Post process succeeded.</p>
+<p>Now we need to work on the View Page, <code>Edit.cshtml</code>. First we need to create a generic partial class that can be used on every View Page that needs a Notification message. We will create a <code>_Notification.cshtml</code> partial class in to the <code>Shared</code> folder.</p>
+<h3 id="notificationcshtml">_Notification.cshtml</h3>
+<pre class="prettyprint"><code><div>@using Blog.Models.ViewModels
+@{
+    var notification = (Notification)ViewData[<span class="hljs-string">"Notification"</span>];
+
+    <span class="hljs-keyword">if</span> (notification != null)
+    {
+        var notificationClass = string.Empty;
+        switch (notification.Type)
+        {
+            <span class="hljs-keyword">case</span> Enums.NotificationType.Success:
+                notificationClass = <span class="hljs-string">"alert-success"</span>;
+                <span class="hljs-built_in">break</span>;
+            <span class="hljs-keyword">case</span> Enums.NotificationType.Info:
+                notificationClass = <span class="hljs-string">"alert-secondary"</span>;
+                <span class="hljs-built_in">break</span>;
+            <span class="hljs-keyword">case</span> Enums.NotificationType.Error:
+                notificationClass = <span class="hljs-string">"alert-danger"</span>;
+                <span class="hljs-built_in">break</span>;
+            default:
+                notificationClass = string.Empty;
+                <span class="hljs-built_in">break</span>;
+        }
+
+        &lt;div class=<span class="hljs-string">"container mb-5"</span>&gt;
+            &lt;div class=<span class="hljs-string">"alert @notificationClass alert-dismissible fade show mb-5 rounded-2"</span> role=<span class="hljs-string">"alert"</span>&gt;
+                @Html.Raw(notification.Message)
+                &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"button"</span> class=<span class="hljs-string">"btn-close"</span> data-bs-dismiss=<span class="hljs-string">"alert"</span> aria-label=<span class="hljs-string">"Close"</span>&gt;&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }
+}
+</div></code></pre>
+<p>This Partial View Class create a Notification message on a page for us. The colour of the message is dependent on the status of the <code>Notification.Type</code>. We use a <code>Switch</code> statement to create <code>notificationClass</code> variable that can change the colour of the message.</p>
+<p>Now in the <code>Edit.cshtml</code> View Page we can add the Partial View.</p>
+<pre class="prettyprint"><code><div>    &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;&lt;/partial&gt;
+</div></code></pre>
+<p>This is all you need to do in your View Page. Once we run the Edit page again we will see this Success message.</p>
+<p><img src="assets/images/generic-message.jpg" alt="Generic message" title="Generic message"></p>
+<p>This is the same as our previous message but this time it is a generic message.</p>
+<h2 id="notification-for-our-add-page">Notification for our Add page</h2>
+<p>First we will change the <code>OnPost()</code> method in our Page Model.</p>
+<pre class="prettyprint"><code><div>public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+{
+    var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
+    {
+        Heading = AddBlogPostRequest.Heading,
+        PageTitle = AddBlogPostRequest.PageTitle,
+        Content = AddBlogPostRequest.Content,
+        ShortDescription = AddBlogPostRequest.ShortDescription,
+        FeaturedImageUrl = AddBlogPostRequest.FeaturedImageUrl,
+        UrlHandle = AddBlogPostRequest.UrlHandle,
+        PublishedDate = AddBlogPostRequest.PublishedDate,
+        Author = AddBlogPostRequest.Author,
+        Visible = AddBlogPostRequest.Visible
+    };
+
+    var result = await blogPostRepository.AddAsync(blogPost);
+
+    var notification = new Notification
+    {
+        Type = Enums.NotificationType.Success,
+        Message = $<span class="hljs-string">"A new Post with the Title: \"{result.PageTitle}\" has been created!"</span>
+    };
+
+    TempData[<span class="hljs-string">"Notification"</span>] = JsonSerializer.Serialize(notification);
+
+    <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+}
+</div></code></pre>
+<p>We create the Notification object with the message we require.</p>
+<pre class="prettyprint"><code><div>    var notification = new Notification
+    {
+        Type = Enums.NotificationType.Success,
+        Message = $<span class="hljs-string">"A new Post with the Title: \"{result.PageTitle}\" has been created!"</span>
+    };
+</div></code></pre>
+<p>Next we still need to use the <code>TempData</code> because once we <code>Post</code> we need to <code>Redirect</code> to our <code>Get</code> method.</p>
+<pre class="prettyprint"><code><div>    TempData[<span class="hljs-string">"Notification"</span>] = JsonSerializer.Serialize(notification);
+</div></code></pre>
+<p><strong>Note:</strong> We have to serialise the Json otherwise we will get an error when using <code>TempData</code>.</p>
+<p>Now on the <code>List</code> Page Model <code>Get()</code> method.</p>
+<pre class="prettyprint"><code><div>public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+{
+    var notificationJson = (string)TempData[<span class="hljs-string">"Notification"</span>];
+
+    <span class="hljs-keyword">if</span> (notificationJson != null) 
+    {
+        ViewData[<span class="hljs-string">"Notification"</span>] = JsonSerializer.Deserialize&lt;Notification&gt;(notificationJson);
+    }
+
+    BlogPosts = (await blogPostRepository.GetAllAsync())?.ToList();
+}
+</div></code></pre>
+<p>The processing for <code>TempData</code> is a little more complex.</p>
+<p>First we get the Json <code>TempData</code> and use it a a <code>string</code> Json value.</p>
+<pre class="prettyprint"><code><div>    var notificationJson = (string)TempData[<span class="hljs-string">"Notification"</span>];
+</div></code></pre>
+<p>Next we test that the <code>Notification</code> object isn't a null value with.</p>
+<pre class="prettyprint"><code><div>    <span class="hljs-keyword">if</span> (notificationJson != null) 
+    {
+        ViewData[<span class="hljs-string">"Notification"</span>] = JsonSerializer.Deserialize&lt;Notification&gt;(notificationJson);
+    }
+</div></code></pre>
+<p>If we have a <code>Notification</code> object we need to <code>Deserialize</code> the Json into the object and this time seeing as we need the data on the View Page we can save it as a View Data container so that we can use it on the <code>List</code> View Page.</p>
+<p>Once again on the List.cshtml page we just add the <code>_Notification</code> Partial View page.</p>
+<pre class="prettyprint"><code><div>    &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;&lt;/partial&gt;
+</div></code></pre>
+<p>Once we edit a record we will get a Success message.</p>
+<h2 id="adding-an-error-notification">Adding an Error notification</h2>
+<p>On our <code>Edit.cshtml.cs</code> Page Model we will change the <code>OnPostEdit()</code> method to force an error.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostEdit</span></span>()
+    {
+        await blogPostRepository.UpdateAsync(BlogPost);
+
+        try
+        {
+            throw new Exception();
+
+            var blogPostDomainModel = new BlogPost
+            {
+                Id = BlogPost.Id,
+                Heading = BlogPost.Heading,
+                PageTitle = BlogPost.PageTitle,
+                Content = BlogPost.Content,
+                ShortDescription = BlogPost.ShortDescription,
+                FeaturedImageUrl = BlogPost.FeaturedImageUrl,
+                UrlHandle = BlogPost.UrlHandle,
+                PublishedDate = BlogPost.PublishedDate,
+                Author = BlogPost.Author,
+                Visible = BlogPost.Visible,
+            };
+
+            await blogPostRepository.UpdateAsync(blogPostDomainModel);
+
+            ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+            {
+                Type = Enums.NotificationType.Success,
+                Message = <span class="hljs-string">"Record updated successfully!"</span>
+            };
+        }
+        catch (Exception ex)
+        {
+            ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+            {
+                Type = Enums.NotificationType.Error,
+                Message = <span class="hljs-string">"Something went wrong!"</span>
+            };
+        }
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>We have added a <code>try-catch</code> block to catch the error. Note that when an Edit fails it will be sent to the <code>catch</code> part of the block.</p>
+<p>In here we create another ViewData Notification but this time the Notification.Type will be a <code>Enums.NotificationType.Error</code>.</p>
+<p>To force an error we will throw an exception at the top of a <code>try-catch</code> block.</p>
+<p>This will produce the following error message.</p>
+<p><img src="assets/images/error-message.jpg" alt="Error message" title="Error message"></p>
+<h2 id="delete-process">Delete process</h2>
+<p>On the <code>Edit.cshtml</code> View Page we have a <code>Delete</code> button. We should now report back on the status of the Delete process.</p>
+<p>The <code>OnPostDelete()</code> method needs to be changed.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; OnPostDelete(int id)
+    {
+        var deleted = await blogPostRepository.DeleteAsync(BlogPost.Id);
+
+        <span class="hljs-keyword">if</span> (deleted)
+        {
+            var notification = new Notification
+            {
+                Type = Enums.NotificationType.Success,
+                Message = $<span class="hljs-string">"The Post was deleted!"</span>
+            };
+
+            TempData[<span class="hljs-string">"Notification"</span>] = JsonSerializer.Serialize(notification);
+
+            <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+        }
+         
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>Once again we have to use <code>TempData</code> because we are using the <code>Post-&gt;Redirect-&gt;Get</code> process.</p>
+<p>We are Redirecting to the <code>List</code> View Page. We don't have to change anything on the List <code>OnGet()</code> method because we have already built the <code>Notification</code> process into this method. This is also the same for the the View Page.</p>
+<p>We should see this message once we delete a record.</p>
+<p><img src="assets/images/deleted-message.jpg" alt="Deleted message" title="Deleted message"></p>
+<p><strong>Note:</strong> in this <code>OnPostDelete()</code> method we need to do some extra work. We should try to get the record we are deleting to see if it actually exists. If it does we can then delete the record. We also need to add the failure message in case there is a problem.</p>
+<h3 id="summary">Summary</h3>
+<p>Now we have a Generic Notification object that can report back to any page on the status of a process.</p>
+
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+</body>
+</html>
