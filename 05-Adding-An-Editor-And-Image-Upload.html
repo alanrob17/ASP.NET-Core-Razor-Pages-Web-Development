@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>05-Adding-An-Editor-And-Image-Upload.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="05-adding-an-editor-and-image-upload">05-Adding an Editor and Image Upload</h1>
+<h2 id="adding-an-editor-to-our-add-and-edit-page">Adding an Editor to our Add and Edit page</h2>
+<p>We are going to use <code>Froala</code> editor.</p>
+<h3 id="installing-froala-editor">Installing Froala editor</h3>
+<p><a href="https://froala.com/wysiwyg-editor/docs/overview/">Install Froala link.</a></p>
+<p>Click on <code>Get Started</code> link.</p>
+<p>Select <code>Choose Your Framework</code> and select CDN. This will give you 2 links that you can add to <code>_layout.cs</code>. Add these in the <code>head</code> section of your page.</p>
+<pre class="hljs"><code><div>&lt;link href=<span class="hljs-string">'https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css'</span> rel=<span class="hljs-string">'stylesheet'</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">'text/css'</span> /&gt;
+
+&lt;script <span class="hljs-built_in">type</span>=<span class="hljs-string">'text/javascript'</span> src=<span class="hljs-string">'https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js'</span>&gt;&lt;/script&gt;
+</div></code></pre>
+<p>In the <code>Add()</code> page we are going add the text editor to the Content <code>TextArea</code> which has an id of <code>&quot;content&quot;</code>.</p>
+<p>At the bottom of the page we will add this script section.</p>
+<pre class="hljs"><code><div>    @section Scripts {
+        &lt;script&gt;
+            var editor = new FroalaEditor(<span class="hljs-string">'#content'</span>);
+        &lt;/script&gt;
+    }
+</div></code></pre>
+<p>When we open the <code>Add()</code> View Page we will see this.</p>
+<p><img src="assets/images/text-editor.jpg" alt="Froala text editor" title="Froala text editor"></p>
+<p>Now we can add rich text and Froala text editor will turn it into Html code.</p>
+<p>Som sample content.</p>
+<p><img src="assets/images/content.jpg" alt="Sample content" title="Sample content"></p>
+<p>We can add the same script section to our Edit View Page as it also has an Id of <code>&quot;content&quot;</code>.</p>
+<h2 id="adding-an-image-upload-to-our-application">Adding an Image Upload to our application</h2>
+<p>We need to create an Image Upload API to our project.</p>
+<p>Create a <code>Controllers</code> folder.</p>
+<p>Add a new Controller into your folder using the MVC Empty template. Name it <code>ImagesController.cs</code>.</p>
+<p>Add the <code>ApiController</code> attribute to the Controller class.</p>
+<pre class="hljs"><code><div>    [ApiController]
+    public class ImagesController : Controller
+    {
+        public IActionResult <span class="hljs-function"><span class="hljs-title">Index</span></span>()
+        {
+            <span class="hljs-built_in">return</span> View();
+        }
+    }
+</div></code></pre>
+<p>This specifies that the Controller is an <code>ApiController</code> and doesn't have any views and all that it is doing is returning some data or performing an Action.</p>
+<p>Now we need to add some routing. We will be adding a <code>Get()</code> method and  <code>Post()</code> method.</p>
+<p>We will add routing to the Controller method.</p>
+<pre class="hljs"><code><div>    [ApiController]
+    [Route(<span class="hljs-string">"api/images"</span>)]
+    public class ImagesController : Controller
+    {
+        public IActionResult <span class="hljs-function"><span class="hljs-title">Index</span></span>()
+        {
+            <span class="hljs-built_in">return</span> View();
+        }
+    }
+</div></code></pre>
+<p>The Controller can also be used in the Route with this line.</p>
+<blockquote>
+<p>[Route(&quot;api/[controller]&quot;)]</p>
+</blockquote>
+<p>Which is the same as above.</p>
+<p>The <code>Get()</code> method won't be used but we will create one for testing.</p>
+<pre class="hljs"><code><div>    [HttpGet]
+    public IActionResult <span class="hljs-function"><span class="hljs-title">Index</span></span>()
+    {
+        <span class="hljs-built_in">return</span> Ok(<span class="hljs-string">"This is the Images Get() method!"</span>);
+    }
+</div></code></pre>
+<p><strong>Note:</strong> the <code>HttpGet</code> attribute lets you know that <code>Index()</code> is a <strong>GET</strong> method. We could also call the method <code>Get()</code>.</p>
+<p>In order to use any method in our API Controller we will have to change <code>Program.cs</code> to configure it to work with Razor pages.</p>
+<p>Add the following line after <code>AddRazorPages()</code>.</p>
+<pre class="hljs"><code><div>    // Add services to the container.
+    builder.Services.AddRazorPages();
+
+    builder.Services.AddControllers();
+</div></code></pre>
+<p><strong>Note:</strong> there is also a <code>builder.Services.AddControllersWithViews();</code> but we aren't interested thin creating views in this application.</p>
+<p>This injects our Controller into the Services.</p>
+<p>Next we need to configure the Controller inside the Http Request pipeline.</p>
+<pre class="hljs"><code><div>    app.MapRazorPages();
+    app.MapControllers();
+</div></code></pre>
+<p>Now with these 2 changes we should be able to hit the <code>Get()</code> method inside our Controller.</p>
+<p>Let's try it out.</p>
+<blockquote>
+<p><a href="https://localhost:7100/api/images">https://localhost:7100/api/images</a></p>
+</blockquote>
+<p>Returns.</p>
+<p><img src="assets/images/get-method.jpg" alt="Get() Api method" title="Get() Api method"></p>
+<p>This shows that the <strong>GET</strong> request is working.</p>
+<h2 id="create-the-post-method">Create the Post method</h2>
+<pre class="hljs"><code><div>    [HttpPost]
+    //[Route(<span class="hljs-string">"Upload"</span>)]
+    public async Task&lt;IActionResult&gt; UploadAsync(IFormFile file)
+    {
+        
+    }
+</div></code></pre>
+<p>Now we need to create</p>
+<h2 id="create-post-method-and-image-repository">Create POST method and Image Repository</h2>
+<p>Create your Interface first.</p>
+<h3 id="iimagerepository">IImageRepository</h3>
+<pre class="hljs"><code><div>    public interface IIimageRepository
+    {
+        Task&lt;Image&gt; UploadAsync(IFormFile file);
+    }
+</div></code></pre>
+<p>Now create the implementation.</p>
+<h3 id="imagerepositorycs">ImageRepository.cs</h3>
+<pre class="hljs"><code><div>    public class ImageRepository: IImageRepository
+    {
+        public async Task&lt;string&gt; UploadAsync(IFormFile file)
+        {
+
+        }
+    }
+</div></code></pre>
+<h2 id="create-a-cloundinary-account">Create a Cloundinary account</h2>
+<p>We can create an account on <a href="https://cloundinary.com">Cloudinary</a>.</p>
+<p>Create a new API key</p>
+<p>Install:</p>
+<blockquote>
+<p>Install-Package CloundaryDotNet</p>
+</blockquote>
+<h3 id="appsettingsjson">appsettings.json</h3>
+<p>Add this section after the connection strings.</p>
+<pre class="hljs"><code><div>    <span class="hljs-string">"Cloudinary"</span>: {
+      <span class="hljs-string">"CloudName"</span>: <span class="hljs-string">"cloud name"</span>,
+      <span class="hljs-string">"ApiKey"</span>: <span class="hljs-string">"key"</span>,
+      <span class="hljs-string">"ApiSecret"</span>: <span class="hljs-string">"secret"</span>
+    }
+</div></code></pre>
+<p>Add a constructor into <code>ImageRepository</code>.</p>
+<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> Account account;
+
+    public ImageRepository(IConfiguration configuration)
+    {
+        account = new Account(configuration.GetSection(<span class="hljs-string">"Cloudinary"</span>)[<span class="hljs-string">"CloudName"</span>],
+            configuration.GetSection(<span class="hljs-string">"Cloudinary"</span>)[<span class="hljs-string">"ApiKey"</span>],
+            configuration.GetSection(<span class="hljs-string">"Cloudinary"</span>)[<span class="hljs-string">"ApiSecret"</span>]);
+    }
+</div></code></pre>
+<p>This contains our Cloudinary details.</p>
+<p>Now we can finish off our <code>UploadAsync()</code> method in our <code>ImagesRepository</code>.</p>
+<pre class="hljs"><code><div>    public async Task&lt;string&gt; UploadAsync(IFormFile file)
+    {
+        var client = new Cloudinary(account);
+        var result = await client.UploadAsync(
+            new CloudinaryDotNet.Actions.<span class="hljs-function"><span class="hljs-title">ImageUploadParams</span></span>()
+            {
+                File = new FileDescription(file.FileName, file.OpenReadStream()),
+                DisplayName = file.FileName
+            });
+
+        <span class="hljs-keyword">if</span> (result != null &amp;&amp; result.StatusCode == System.Net.HttpStatusCode.OK) 
+        {
+            <span class="hljs-built_in">return</span> result.SecureUrl.ToString();
+        }
+
+        <span class="hljs-built_in">return</span> null;
+    }
+</div></code></pre>
+<h2 id="inject-our-image-repository-and-test-cloudinary">Inject our Image Repository and test Cloudinary</h2>
+<p>First we have to inject our <code>ImageRepository</code> into our application.</p>
+<p>In <code>Program.cs</code> add the following line below the <code>BlogRepository</code> injection.</p>
+<blockquote>
+<p><code>builder.Services.AddScoped&lt;IImageRepository, ImageRepository&gt;();</code></p>
+</blockquote>
+<p>Now we can inject our <code>ImageRepository</code> into our <code>ImagesController</code>. First create a constructor to inject our <code>ImageRepository</code>.</p>
+<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> IImageRepository imageRepository;
+
+    public ImagesController(IImageRepository imageRepository)
+    {
+        this.imageRepository = imageRepository;
+    }
+</div></code></pre>
+<p>Now create our <code>UploadAsync()</code> <strong>POST</strong> method.</p>
+<pre class="hljs"><code><div>[HttpPost]
+public async Task&lt;IActionResult&gt; UploadAsync(IFormFile file)
+{
+
+    // User repository to upload image
+    var imageUrl = await imageRepository.UploadAsync(file);
+
+    <span class="hljs-keyword">if</span> (imageUrl == null)
+    {
+        <span class="hljs-built_in">return</span> Problem(<span class="hljs-string">"An Error occured!"</span>, null, (int)HttpStatusCode.InternalServerError);
+    }
+
+    <span class="hljs-built_in">return</span> Json(new { link = imageUrl });
+}
+</div></code></pre>
+<p>Use <strong>Postman</strong> to test the <code>POST</code> method</p>
+<p>Url:</p>
+<blockquote>
+<p><a href="https://localhost:7100/api/images">https://localhost:7100/api/images</a></p>
+</blockquote>
+
+</body>
+</html>
