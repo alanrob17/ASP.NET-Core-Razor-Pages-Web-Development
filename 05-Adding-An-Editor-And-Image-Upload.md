@@ -36,13 +36,13 @@ When we open the ``Add()`` View Page we will see this.
 
 Now we can add rich text and Froala text editor will turn it into Html code.
 
-Som sample content.
+Some sample content.
 
 ![Sample content](assets/images/content.jpg "Sample content")
 
 We can add the same script section to our Edit View Page as it also has an Id of ``"content"``.
 
-## Adding an Image Upload to our application
+## Adding an Image Upload option to our application
 
 We need to create an Image Upload API to our project.
 
@@ -110,7 +110,7 @@ Add the following line after ``AddRazorPages()``.
     builder.Services.AddControllers();
 ```
 
-**Note:** there is also a ``builder.Services.AddControllersWithViews();`` but we aren't interested thin creating views in this application.
+**Note:** there is also a ``builder.Services.AddControllersWithViews();`` but we aren't interested in creating views in this application.
 
 This injects our Controller into the Services.
 
@@ -131,22 +131,21 @@ Returns.
 
 ![Get() Api method](assets/images/get-method.jpg "Get() Api method")
 
-This shows that the **GET** request is working.
+This shows that the **GET** request is working. We only use **Get** to check that our API is working.
 
 ## Create the Post method
 
+Create this in ``ImagesController.cs``.
+
 ```bash
     [HttpPost]
-    //[Route("Upload")]
     public async Task<IActionResult> UploadAsync(IFormFile file)
     {
         
     }
 ```
 
-Now we need to create
-
-## Create POST method and Image Repository
+## Create the Image Repository
 
 Create your Interface first.
 
@@ -173,15 +172,15 @@ Now create the implementation.
     }
 ```
 
-## Create a Cloundinary account
+## Create a Cloudinary account
 
 We can create an account on [Cloudinary](https://cloundinary.com).
 
 Create a new API key
 
-Install:
+Install Cloudinary in our application:
 
-> Install-Package CloundaryDotNet
+> Install-Package CloudinaryDotNet
 
 ### appsettings.json
 
@@ -275,3 +274,183 @@ Use **Postman** to test the ``POST`` method
 Url:
 
 > [https://localhost:7100/api/images](https://localhost:7100/api/images)
+
+We need to add a file to the FormData section in Postman.
+
+![Upload image to Cloudinary](assets/images/image-upload.jpg "Upload image to Cloudinary")
+
+Where the ``Key`` has to be type: **file** and you can select a file to upload in the ``Value`` tab.
+
+When you run this it will return the following JSON.
+
+```bash
+{
+    "link": "https://res.cloudinary.com/dil05udxh/image/upload/v1720070210/bhaniwzoafykfevfmewy.jpg"
+}
+```
+
+If you browse to this URL you will see the image you uploaded.
+
+This gives us confirmation that our image upload to Cloudinary is working.
+
+If you go to Cloudinary you can see your digital assets and the image you uploaded.
+
+![Cloudinary](assets/images/cloudinary.jpg "Cloudinary")
+
+## Calling Image Upload from a Razor page
+
+In the ``Admin/Blogs/Add.cshtml`` page.
+
+Add a new Div above the ``FeaturedImageUrl`` Div.
+
+```bash
+<div class="mb-3">
+    <label for="featuredImageUpload" class="form-label">Featured Image Upload</label>
+    <input type="file" id="featuredImageUpload" asp-for="FeaturedImage"/>
+    <img src="" id="featuredImageDisplay" style="display:none; width:300px;"  />
+</div>
+```
+
+In the Code Behind we need to add a new property.
+
+```bash
+    [BindProperty]
+    public IFormFile FeaturedImage { get; set; }
+```
+
+Make it bindable so that we can use it in our code.
+
+Now in the script section of our Razor page add this JavaScript.
+
+```bash
+const featuredImageUploadElement = document.getElementById('featuredImageUpload');
+
+async function uploadFeaturedImage(e) {
+    console.log(e.target.files[0]);
+}
+
+featuredImageUploadElement.addEventListener('change', uploadFeaturedImage);
+```
+
+Run ``Add.cshtml`` and add an image.
+
+In the Console window of your browser you should see this.
+
+![Console window result](assets/images/console-values.jpg "Console window result")
+
+Once we have this image we have a way to call our Images Controller in the ``change`` method.
+
+Create a JavaScript function to upload the image to Cloudinary.
+
+```bash
+const featuredImageUploadElement = document.getElementById('featuredImageUpload');
+const featuredImageUrl = document.getElementById('featuredImageUrl');
+const featuredImageDisplay = document.getElementById('featuredImageDisplay');
+
+async function uploadFeaturedImage(e) {
+    console.log(e.target.files[0]);
+
+    let data = new FormData();
+    data.append('file', e.target.files[0]);
+
+    await fetch('/api/images', {
+        method: 'POST',
+        headers: {
+            'Accept': '*/*',
+        },
+        body: data
+    }).then(response => response.json())
+        .then(result => {
+            featuredImageUrl.value = result.link;
+            featuredImageDisplay.style.display = 'block';
+            featuredImageDisplay.src = result.link;
+        });
+}
+
+featuredImageUploadElement.addEventListener('change', uploadFeaturedImage);
+```
+
+When you upload an image it will return the image Url in the FeaturedImageUrl field on the page.
+
+![Featured image Url](assets/images/featured-image-url.jpg "Featured image Url")
+
+## Add and Image Upload feature to Fraola editor
+
+We also want to be able to add images to our Fraola text editor. Currently our editor is set up in the JavaScript like this.
+
+```bash
+    var editor = new FroalaEditor('#content');
+```
+
+We need to change this so that if we add an image into the Html content it will automatically be uploaded to Cloudinary.
+
+We can add a JavaScript object to this statement to use the path ``/api/images`` that allows us to post the image to Cloudinary.
+
+```bash
+    var editor = new FroalaEditor('#content', {
+        imageUploadURL: '/api/images'
+    });
+```
+
+With this small change we can add an image and it will instantly upload to Cloudinary.
+
+Now that we have finished the Add page we want to add changes to the ``Edit.cshtml`` Razor page.
+
+Add a ``FeaturedImageUpload`` div above the ``FeaturedImageUrl`` Div.
+
+```bash
+<div class="mb-3">
+    <label for="featuredImageUpload" class="form-label">Featured Image Upload</label>
+    <input type="file" id="featuredImageUpload" asp-for="FeaturedImage" />
+
+    @if (Model.BlogPost.FeaturedImageUrl != null)
+    {
+        <img src="@Model.BlogPost.FeaturedImageUrl" id="featuredImageDisplay" style="width:300px;" />
+    }
+    else
+    {
+        <img src="" id="featuredImageDisplay" style="display:none; width:300px;" />
+    }
+</div>
+```
+
+Change the ``script`` section to be the same as the ``Add.cshtml`` page.
+
+On the Code Behind page add the ``FeaturedImage`` property.
+
+```bash
+    [BindProperty]
+    public IFormFile FeaturedImage { get; set; }
+```
+
+Now test the page to see that it is working correctly.
+
+### Details.cshtml
+
+We have to make some minor changes to the Details pages so that we view Html code instead of text.
+
+Change the ``content`` property.
+
+```bash
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.BlogPost.Content)
+    </dt>
+    <dd class="col-sm-10">
+        @Html.Raw(Model.BlogPost.Content)
+    </dd>
+```
+
+Change the ``FeaturedImageUrl`` property.
+
+```bash
+    <dt class="col-sm-2">
+        @Html.DisplayNameFor(model => model.BlogPost.FeaturedImageUrl)
+    </dt>
+    <dd class="col-sm-10">
+        <img src="@Model.BlogPost.FeaturedImageUrl" alt="Featured Image" class="img-fluid" />
+    </dd>
+```
+
+Run this page and pick a blog post with images.
+
+![Blog Pst Details](assets/images/details-page.jpg "Blog Pst Details")
