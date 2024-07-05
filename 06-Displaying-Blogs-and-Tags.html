@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>06-Displaying-Blogs-and-Tags.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="displaying-blogs-and-tags">Displaying Blogs and Tags</h1>
+<h2 id="index-page">Index page</h2>
+<p>The first thing we will do is build an <code>Index.cshtml</code> page that will show a Hero block and a list of Blogs.</p>
+<h3 id="indexcshtml">Index.cshtml</h3>
+<pre class="hljs"><code><div>@page
+@model IndexModel
+@{
+    ViewData[<span class="hljs-string">"Title"</span>] = <span class="hljs-string">"Home page"</span>;
+}
+
+
+&lt;div class=<span class="hljs-string">"container col-xxl-8 px-4 py-5"</span>&gt;
+    &lt;div class=<span class="hljs-string">"row align-items-center g-5 py-5"</span>&gt;
+        &lt;div class=<span class="hljs-string">"col-12 col-lg-6"</span>&gt;
+            &lt;h1 class=<span class="hljs-string">"display-5 fw-bold lh-1 mb-3"</span>&gt;
+                Alan<span class="hljs-string">'s Blog&lt;br/&gt;- The Dev Blog
+            &lt;/h1&gt;
+            &lt;p class="lead"&gt;
+                Alan'</span>s Blog is the home to coding blogs covering a vast range of topics like ASP.NET, C<span class="hljs-comment">#, Javascript, SQL Server, MongoDB, etc. Want to read the latest dev articles? Join Alan's Blog to get weekly blogs in your email.</span>
+            &lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div class=<span class="hljs-string">"col-12 col-lg-6"</span>&gt;
+            &lt;img src=<span class="hljs-string">"https://images.pexels.com/photos/57690/pexels-photo-57690.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=600"</span>
+                 class=<span class="hljs-string">"d-block mx-lg-auto img-fluid"</span> width=<span class="hljs-string">"400"</span> /&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=<span class="hljs-string">"container"</span>&gt;
+    &lt;div class=<span class="hljs-string">"row justify-content-center"</span>&gt;
+        &lt;div class=<span class="hljs-string">"col-6"</span>&gt;
+
+            &lt;h2 class=<span class="hljs-string">"mb-5 display-3"</span>&gt;Blogs&lt;/h2&gt;
+
+            @<span class="hljs-keyword">if</span> (Model.Blogs != null &amp;&amp; Model.Blogs.Any())
+            {
+                foreach (var blog <span class="hljs-keyword">in</span> Model.Blogs)
+                {
+                    &lt;div class=<span class="hljs-string">"mb-5 bg-light box-shadow"</span>&gt;
+                        &lt;img src=<span class="hljs-string">"@blog.FeaturedImageUrl"</span> alt=<span class="hljs-string">"@blog.Heading"</span> class=<span class="hljs-string">"mb-2 d-block img-fluid"</span> /&gt;
+                        &lt;div class=<span class="hljs-string">"px-4 py-4"</span>&gt;
+                            &lt;h2 class=<span class="hljs-string">"mb-2"</span>&gt;@blog.Heading.ToProperCase()&lt;/h2&gt;
+                            &lt;p&gt;
+                                Author: @blog.Author
+                                &lt;br /&gt;
+                                Date Published: @blog.PublishedDate.ToShortDateString()
+                            &lt;/p&gt;
+                            &lt;p class=<span class="hljs-string">"mb-2"</span>&gt;@blog.ShortDescription&lt;/p&gt;
+                            &lt;a href=<span class="hljs-string">"/blog/@blog.UrlHandle"</span> class=<span class="hljs-string">"btn btn-dark"</span>&gt;Read More&lt;/a&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                }
+            }
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<h3 id="indexcshtmlcs">Index.cshtml.cs</h3>
+<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> ILogger&lt;IndexModel&gt; _logger;
+    public IBlogPostRepository blogPostRepository { get; }
+
+    public List&lt;BlogPost&gt; Blogs { get; <span class="hljs-built_in">set</span>; }
+
+    public IndexModel(ILogger&lt;IndexModel&gt; logger, IBlogPostRepository blogPostRepository)
+    {
+        _logger = logger;
+        this.blogPostRepository = blogPostRepository;
+    }
+
+    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        Blogs = (await blogPostRepository.GetAllAsync()).ToList();
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<h2 id="create-a-topropercase-class">Create a ToProperCase class</h2>
+<p>A number of headers contain uppercase words. The easy way would be to write them in the proper case in the first place.</p>
+<p>Another way is to build a proper case string extension class.</p>
+<p>First we have to add a line to <code>_ViewImports.cshtml</code>.</p>
+<pre class="hljs"><code><div>    @using Blog.Models
+</div></code></pre>
+<p>We are going to add a class into the Models folder named <code>StringExtensions.cs</code>.</p>
+<pre class="hljs"><code><div>    public static string ToProperCase(this string str)
+    {
+        <span class="hljs-keyword">if</span> (string.IsNullOrWhiteSpace(str))
+            <span class="hljs-built_in">return</span> str;
+
+        var words = str.Split(<span class="hljs-string">' '</span>);
+        <span class="hljs-keyword">for</span> (int i = 0; i &lt; words.Length; i++)
+        {
+            <span class="hljs-keyword">if</span> (words[i].Length &gt; 0)
+            {
+                words[i] = char.ToUpper(words[i][0]) + words[i].Substring(1).ToLower();
+            }
+        }
+
+        var header = string.Join(<span class="hljs-string">" "</span>, words);
+
+        header = ProperCaseWords(header);
+
+        <span class="hljs-built_in">return</span> header;
+    }
+
+    private static string ProperCaseWords(string header)
+    {
+        var replacements = new Dictionary&lt;string, string&gt;(StringComparer.OrdinalIgnoreCase)
+        {
+            { <span class="hljs-string">"Javascript"</span>, <span class="hljs-string">"JavaScript"</span> },
+            { <span class="hljs-string">"Typescript"</span>, <span class="hljs-string">"TypeScript"</span> },
+            { <span class="hljs-string">"Mongodb"</span>, <span class="hljs-string">"MongoDB"</span> },
+            { <span class="hljs-string">"Asp.net"</span>, <span class="hljs-string">"ASP.NET"</span> },
+            { <span class="hljs-string">"Sms"</span>, <span class="hljs-string">"SMS"</span> },
+            { <span class="hljs-string">"Sql"</span>, <span class="hljs-string">"SQL"</span> }
+        };
+
+        foreach (var replacement <span class="hljs-keyword">in</span> replacements)
+        {
+            header = header.Replace(replacement.Key, replacement.Value, StringComparison.OrdinalIgnoreCase);
+        }
+
+        <span class="hljs-built_in">return</span> header;
+    }
+</div></code></pre>
+<p><code>ToProperCase()</code> will proper case the headers but words like JavaScript will become Javascript which is not the proper case. To get around this I have built another method named <code>ProperCaseWords()</code> to correctly case particular words.</p>
+<p>This is what the final page looks like.</p>
+<p><img src="assets/images/index-page.jpg" alt="Index page" title="Index page"></p>
+<p>If you scroll down the page you will see the Blogs section.</p>
+<p><img src="assets/images/blog-post.jpg" alt="Blog post" title="Blog post"></p>
+<h2 id="displaying-blog-details">Displaying Blog details</h2>
+<p>We need to display the details of a Blog Post. To do this we will create a folder named <code>BlogPage</code> in the root of the <code>Pages</code> folder.</p>
+<p><strong>Note:</strong> I originally called the folder <code>Blog</code> but this conflicted with the name of the application. I need to be aware of this in other projects.</p>
+<p>From here create a <code>Details.cshtml</code> Razor page.</p>
+<p>We don't want to serve this page using the default routing. We need to take advantage of SEO to allow robots to find our content. We need to capture the Url handle of the Blog Post which is a search engine readable form of the blog. So we will override our existing route handling and create a different routing for this page.</p>
+<p>We can do this by adding our route to the <code>@page</code> declaration.</p>
+<pre class="hljs"><code><div>    @page <span class="hljs-string">"/blog/details"</span>
+</div></code></pre>
+<p>This is all we have to do to change the routing.</p>
+
+</body>
+</html>
