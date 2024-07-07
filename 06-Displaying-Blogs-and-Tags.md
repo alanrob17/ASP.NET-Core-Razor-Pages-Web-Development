@@ -271,7 +271,7 @@ else
 }
 ```
 
-Note that the content is constrained ``class="col-12 col-lg-6"`` but this doesn't constrain the inline images which will be larger than the page width. We can constrain these with some CSS in the ``site.css`` file.
+Note that the content is constrained with the CSS class, ``class="col-12 col-lg-6"``. This doesn't constrain the inline images which will be larger than the page width. We can constrain these with some CSS in the ``site.css`` file.
 
 First we have to add a new class ``blog-details`` to our ``Content`` Div.
 
@@ -297,13 +297,13 @@ We want to add Tags to our Blog Posts and use the Tags to navigate to other rela
 
 We need to create the navigation property and the relation between the Blog Post and the Tags. The navigation property in the database is the relation between the Blog Post (1 - primary key) to the Tag (many - foreign key).
 
-Modify the BlogPost model to add the Tag navigation property.
+Modify the ``BlogPost`` model to add the ``Tag`` navigation property.
 
 ```bash
     public ICollection<Tag> Tags { get; set; }
 ```
 
-Now that we have changed BlogPost we can use Package Manager Console to do our migration.
+Now that we have changed ``BlogPost`` we can use Package Manager Console to do our migration.
 
 ```bash
     Add-Migration "Add Tags navigation property."
@@ -390,7 +390,7 @@ In our Edit ``OnGet()`` method we will have to get the List of ``Tags`` and chan
     }
 ```
 
-**Note:** ``BlogPost.Tags.Select(x => x.Name)`` is required to be able to get the ``Name`` from the List of ``Tags``.
+**Note:** ``BlogPost.Tags.Select(x => x.Name)`` is required to be able to get the ``Name`` field from the List of class ``Tags``.
 
 In Edit, ``OnPostEdit()`` we need to capture the new List of ``Tag``. This is the revised code.
 
@@ -479,7 +479,7 @@ This is the revised code.
 
 **Note:** in ``BlogPostRepository`` I have to revise all methods to include the ``Tags`` in my Blog Posts except for the ``DeleteAsync()`` method.
 
-### Details.cshtml
+### Admin/Blog/Details.cshtml
 
 Add the List of ``Tag`` elements to this page.
 
@@ -492,7 +492,7 @@ Add the List of ``Tag`` elements to this page.
     </dd>
 ```
 
-In the Code Behind class. Add ``Tags`` bindable property. the change the ``OnGet()`` method.
+In the Code Behind class. Add a ``Tags`` bindable property then change the ``OnGet()`` method.
 
 ```bash
     public async Task OnGet(int id)
@@ -504,4 +504,156 @@ In the Code Behind class. Add ``Tags`` bindable property. the change the ``OnGet
             Tags = string.Join(", ", BlogPost.Tags.Select(x => x.Name));
         }
     }
+```
+
+## Displaying Tags in our application
+
+We need to create a ``TagRepository`` so that we can retrieve all of the tags for a particular Blog Post. we will display them as badges on the top of the Blog list page.
+
+Retrieve all ``Tags``.
+
+```bash
+    public async Task<IEnumerable<Tag>> GetAllAsync()
+    {
+        var tags = await blogDbContext.Tags.ToListAsync();
+
+        return tags.DistinctBy(x => x.Name.ToLower());
+    }
+```
+
+Because there could be duplicates of a particular tag we use the ``DistinctBy()`` method to remove duplicates.
+
+Inject the ``TagRepository`` into ``Program.cs``.
+
+```bash
+    builder.Services.AddScoped<ITagRepository, TagRepository>();
+```
+
+Now we can inject it into our ``Index.cshtml.cs`` class. We can now retrieve all of our ``Tags``.
+
+```bash
+    public async Task<IActionResult> OnGet()
+    {
+        Blogs = (await blogPostRepository.GetAllAsync()).ToList();
+        Tags = (await tagRepository.GetAllAsync()).ToList();
+
+        return Page();
+    }
+```
+
+on the ``Index.cshtml`` page.
+
+```bash
+    <h2 class="mb-5 display-3">Blogs</h2>
+
+    <div class="mb-5">
+     @if (Model.Tags != null && Model.Tags.Any())
+        {
+            foreach (var tag in Model.Tags)
+            {
+                <a href="/tags/@tag.Name">
+                    <span class="badge bg-dark">@tag.Name</span>
+                </a>
+
+            }
+        }
+    </div>
+```
+
+This will show our tags.
+
+![Tag badges](assets/images/tag-badges.jpg "Tag badges")
+
+## Displaying Tags on the Blog Details page
+
+In the ``Details.cshtml.cs`` class we are including the ``Tags`` for the particular Blog Post so we can use these on the page.
+
+We will place the ``Tag`` Div above th Blog Post content.
+
+```bash
+    <div class="mb-3">
+        @if (Model.BlogPost.Tags != null)
+        {
+            foreach (var tag in Model.BlogPost.Tags)
+            {
+                <a href="/tags/@tag.Name">
+                    <span class="badge bg-dark">@tag.Name</span>
+                </a>
+            }
+        }
+    </div>
+```
+
+Returns.
+
+![Blog post tags](assets/images/blog-post-badges.jpg "Blog post tags")
+
+## Routing using Tags
+
+We can add routing to our badges to show a list of Blog Posts that contain those tags. To do this create a new ``Tags`` folder and a ``Details`` Razor page.
+
+Add another method to ``IBlogPostRepository``.
+
+```bash
+    Task<IEnumerable<BlogPost>> GetAllAsync(string tagName);
+```
+
+The implementation of this method.
+
+```bash
+    public async Task<IEnumerable<BlogPost>> GetAllAsync(string tagName)
+    {
+        return await (blogDbContext.BlogPosts.Include(nameof(BlogPost.Tags))
+            .Where(x => x.Tags.Any(x => x.Name == tagName)))
+            .ToListAsync();
+    }
+```
+
+Now in ``Details.cshtml.cs``.
+
+```bash
+    public async Task<IActionResult> OnGet(string tagName)
+    {
+        BlogPosts = (await blogPostRepository.GetAllAsync(tagName)).ToList();
+
+        return Page();
+    }
+```
+
+### Details.cshtml.cs
+
+```bash
+@page "/tags/{tagName}"
+@model Blog.Pages.Tags.DetailsModel
+@{
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+
+            <h2 class="mb-5 display-3">Blogs</h2>
+
+            @if (Model.Blogs != null && Model.Blogs.Any())
+            {
+                foreach (var blog in Model.Blogs)
+                {
+                    <div class="mb-5 bg-light box-shadow">
+                        <a href="/blog/@blog.UrlHandle"><img src="@blog.FeaturedImageUrl" alt="@blog.Heading" class="mb-2 d-block img-fluid" /></a>
+                        <div class="px-4 py-4">
+                            <h2 class="mb-2">@blog.Heading.ToProperCase()</h2>
+                            <p>
+                                Author: @blog.Author
+                                <br />
+                                Date Published: @blog.PublishedDate.ToShortDateString()
+                            </p>
+                            <p class="mb-2">@blog.ShortDescription</p>
+                            <a href="/blog/@blog.UrlHandle" class="btn btn-dark">Read more</a>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
 ```
