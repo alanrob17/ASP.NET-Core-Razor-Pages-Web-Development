@@ -81,7 +81,7 @@ Create a new ``Register`` class.
     public string Password { get; set; }
 ```
 
-Create a new Razor page in to root of ``Pages`` named ``Register``.
+Create a new Razor page in the **root** of ``Pages`` named ``Register``.
 
 ```bash
 <div class="container mx-auto">
@@ -351,3 +351,209 @@ The logged in button view.
 ![Logged in view](assets/images/logged-in-view.jpg "Logged in view")
 
 ## Implement Logout functionality
+
+Create a ``Logout.cshtml`` Razor page.
+
+We aren't interested in the Razor page, just the ``Logout.cshtml.cs`` Code Behind class.
+
+```bash
+    private readonly SignInManager<IdentityUser> signInManager;
+
+    public LogoutModel(SignInManager<IdentityUser> signInManager)
+    {
+        this.signInManager = signInManager;
+    }
+
+    public async Task<IActionResult> OnGet()
+    {
+        await signInManager.SignOutAsync();
+
+        return RedirectToPage("Index");
+    }
+```
+
+Once again we use the ``SignInManager`` class from Identity. This time we just sign out and redirect back to the Index page.
+
+## Add User Roles
+
+We have completed the **authentication** of our users and now we need to give them roles that can **authorise** what they have rights to.
+
+In the ``Register.cshtml.cs`` Code Behind class we have **authenticated** a user but we also need to give the user **authorisation**.
+
+This is our updated ``OnPost()`` method
+
+```bash
+    public async Task<IActionResult> OnPost()
+    {
+        var user = new IdentityUser
+        {
+            UserName = RegisterViewModel.Username,
+            Email = RegisterViewModel.Email
+        };
+
+        var result = await userManager.CreateAsync(user, RegisterViewModel.Password);
+
+        if (result.Succeeded)
+        {
+            var rolesResult = await userManager.AddToRoleAsync(user, "User");
+
+            if (rolesResult.Succeeded)
+            {
+                ViewData["Notification"] = new Notification
+                {
+                    Type = Enums.NotificationType.Success,
+                    Message = "User registered successfully!"
+                };
+
+                return Page();
+            }
+        }
+
+        ViewData["Notification"] = new Notification
+        {
+            Type = Enums.NotificationType.Error,
+            Message = "User NOT registered!"
+        };
+
+        return Page();
+    }
+```
+
+In the code above we have given the new user the ``User`` role once we have checked that the new user was created successfully.
+
+## Adding Authorisation to the Admin page
+
+We have 3 different types of users.
+
+* Admin
+* SuperAdmin
+* User
+
+We have 3 types of pages
+
+* Admin pages (Admin, SuperAdmin)
+* Blog pages (All)
+* Register & Login pages (All)
+
+Now we want to add Authorisation to our Admin pages. This will bock basic users from seeing these pages.
+
+We add the following to all page classes in the Admin section
+
+```bash
+    [Authorize]
+```
+
+Now if a user isn't logged in they will be blocked from accessing all of these pages. They will get this message.
+
+> <https://localhost:7100/Account/Login?ReturnUrl=%2Fadmin%2Fblogs%2Fadd>
+
+We can redirect the user to the Login page by creating another service in ``Program.cs``.
+
+```bash
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Login";
+    });
+```
+
+This service gracefully redirects a user to the Login page.
+
+Now if any user is logged in they can access the Admin pages no matter what type of user they are. We now need to restrict access to the Admin pages to only the ``Admin`` and ``SuperAdmin`` users.
+
+## Adding Roles based authorisation to the Admin pages
+
+* SuperAdmin has the SuperAdmin, Admin and User roles
+* Admin has the Admin and User roles
+* User has only the User role
+
+Based on this we can add Roles to our ``Authorize`` attribute.
+
+```bash
+    [Authorize(Roles = "Admin")]
+```
+
+**Note:** we don't have to add ``SuperAdmin`` because that already has the ``Admin`` role.
+
+Now if I login as a basic User I get the **AccessDenied** error. The is not the behavior that we want to happen. We can change this in the ``Program.cs`` class.
+
+Change the service to this.
+
+```bash
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+    });
+```
+
+Now build an ``AccessDenied.cshtml`` page.
+
+```bash
+<div class="container mt-5 mb-3">
+    <h2>You are unable to access this page.</h2>
+</div>
+<form method="get">
+    <div class="container mt-5 mb-3">
+        <button type="submit" class="btn bg-dark text-light" asp-page="/Index">Home page</button>
+    </div>
+</form>
+```
+
+This allows the user to go back to the Home page.
+
+Let's go one step further and block the user from seeing the Admin dropdown menu. In the ``_Layout.cshtml`` page.
+
+```bash
+@if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="navbarDropdownAdmin">
+            Admin
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item" href="/admin/blogs/add">Add Blog Post</a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="/admin/blogs/list">List Blog Posts</a>
+            </li>
+        </ul>
+    </li>
+}
+```
+
+This will make the **Admin** dropdown disappear for a basic user.
+
+This is an example of what a basic user menu looks like.
+
+![Basic user menu](assets/images/basic-user-menu.jpg "Basic user menu")
+
+## Redirecting users based on the return Url
+
+On the ``login.cshtml.cs`` Code Behind class we can capture the return url so that if a user isn't authenticated we can send them to the login page and remember where they had came from. When they authenticate we will send them back to the page they came from.
+
+```bash
+    public async Task<IActionResult> OnPost(string? ReturnUrl)
+    {
+        if (ModelState.IsValid)
+        {
+            var signInResult = await signInManager.PasswordSignInAsync(
+            LoginViewModel.Username, LoginViewModel.Password, false, false);
+
+            if (signInResult.Succeeded)
+            {
+                if (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    return RedirectToPage(ReturnUrl);
+                }
+
+                return RedirectToPage("Index");
+            }
+            else
+            {
+                ...
+```
+
+In the ``OnPost()`` statement we pass in ``ReturnUrl`` as a string parameter.
+
+Once the User has logged in successfully we check for a return url and if there is one we will redirect the User to that page otherwise we will send them back to the Index page.

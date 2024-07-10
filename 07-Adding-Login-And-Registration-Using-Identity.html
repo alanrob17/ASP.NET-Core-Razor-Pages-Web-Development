@@ -417,7 +417,7 @@ code {
     [MinLength(6)]
     public string Password { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
-<p>Create a new Razor page in to root of <code>Pages</code> named <code>Register</code>.</p>
+<p>Create a new Razor page in the <strong>root</strong> of <code>Pages</code> named <code>Register</code>.</p>
 <pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"container mx-auto"</span>&gt;
     &lt;div class=<span class="hljs-string">"row justify-content-center"</span>&gt;
         &lt;div class=<span class="hljs-string">"col-12 col-lg-6"</span>&gt;
@@ -637,6 +637,166 @@ code {
 <p>The logged in button view.</p>
 <p><img src="assets/images/logged-in-view.jpg" alt="Logged in view" title="Logged in view"></p>
 <h2 id="implement-logout-functionality">Implement Logout functionality</h2>
+<p>Create a <code>Logout.cshtml</code> Razor page.</p>
+<p>We aren't interested in the Razor page, just the <code>Logout.cshtml.cs</code> Code Behind class.</p>
+<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> SignInManager&lt;IdentityUser&gt; signInManager;
+
+    public LogoutModel(SignInManager&lt;IdentityUser&gt; signInManager)
+    {
+        this.signInManager = signInManager;
+    }
+
+    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        await signInManager.SignOutAsync();
+
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"Index"</span>);
+    }
+</div></code></pre>
+<p>Once again we use the <code>SignInManager</code> class from Identity. This time we just sign out and redirect back to the Index page.</p>
+<h2 id="add-user-roles">Add User Roles</h2>
+<p>We have completed the <strong>authentication</strong> of our users and now we need to give them roles that can <strong>authorise</strong> what they have rights to.</p>
+<p>In the <code>Register.cshtml.cs</code> Code Behind class we have <strong>authenticated</strong> a user but we also need to give the user <strong>authorisation</strong>.</p>
+<p>This is our updated <code>OnPost()</code> method</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var user = new IdentityUser
+        {
+            UserName = RegisterViewModel.Username,
+            Email = RegisterViewModel.Email
+        };
+
+        var result = await userManager.CreateAsync(user, RegisterViewModel.Password);
+
+        <span class="hljs-keyword">if</span> (result.Succeeded)
+        {
+            var rolesResult = await userManager.AddToRoleAsync(user, <span class="hljs-string">"User"</span>);
+
+            <span class="hljs-keyword">if</span> (rolesResult.Succeeded)
+            {
+                ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+                {
+                    Type = Enums.NotificationType.Success,
+                    Message = <span class="hljs-string">"User registered successfully!"</span>
+                };
+
+                <span class="hljs-built_in">return</span> Page();
+            }
+        }
+
+        ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+        {
+            Type = Enums.NotificationType.Error,
+            Message = <span class="hljs-string">"User NOT registered!"</span>
+        };
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>In the code above we have given the new user the <code>User</code> role once we have checked that the new user was created successfully.</p>
+<h2 id="adding-authorisation-to-the-admin-page">Adding Authorisation to the Admin page</h2>
+<p>We have 3 different types of users.</p>
+<ul>
+<li>Admin</li>
+<li>SuperAdmin</li>
+<li>User</li>
+</ul>
+<p>We have 3 types of pages</p>
+<ul>
+<li>Admin pages (Admin, SuperAdmin)</li>
+<li>Blog pages (All)</li>
+<li>Register &amp; Login pages (All)</li>
+</ul>
+<p>Now we want to add Authorisation to our Admin pages. This will bock basic users from seeing these pages.</p>
+<p>We add the following to all page classes in the Admin section</p>
+<pre class="hljs"><code><div>    [Authorize]
+</div></code></pre>
+<p>Now if a user isn't logged in they will be blocked from accessing all of these pages. They will get this message.</p>
+<blockquote>
+<p><a href="https://localhost:7100/Account/Login?ReturnUrl=%2Fadmin%2Fblogs%2Fadd">https://localhost:7100/Account/Login?ReturnUrl=%2Fadmin%2Fblogs%2Fadd</a></p>
+</blockquote>
+<p>We can redirect the user to the Login page by creating another service in <code>Program.cs</code>.</p>
+<pre class="hljs"><code><div>    builder.Services.ConfigureApplicationCookie(options =&gt;
+    {
+        options.LoginPath = <span class="hljs-string">"/Login"</span>;
+    });
+</div></code></pre>
+<p>This service gracefully redirects a user to the Login page.</p>
+<p>Now if any user is logged in they can access the Admin pages no matter what type of user they are. We now need to restrict access to the Admin pages to only the <code>Admin</code> and <code>SuperAdmin</code> users.</p>
+<h2 id="adding-roles-based-authorisation-to-the-admin-pages">Adding Roles based authorisation to the Admin pages</h2>
+<ul>
+<li>SuperAdmin has the SuperAdmin, Admin and User roles</li>
+<li>Admin has the Admin and User roles</li>
+<li>User has only the User role</li>
+</ul>
+<p>Based on this we can add Roles to our <code>Authorize</code> attribute.</p>
+<pre class="hljs"><code><div>    [Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
+</div></code></pre>
+<p><strong>Note:</strong> we don't have to add <code>SuperAdmin</code> because that already has the <code>Admin</code> role.</p>
+<p>Now if I login as a basic User I get the <strong>AccessDenied</strong> error. The is not the behavior that we want to happen. We can change this in the <code>Program.cs</code> class.</p>
+<p>Change the service to this.</p>
+<pre class="hljs"><code><div>    builder.Services.ConfigureApplicationCookie(options =&gt;
+    {
+        options.LoginPath = <span class="hljs-string">"/Login"</span>;
+        options.AccessDeniedPath = <span class="hljs-string">"/AccessDenied"</span>;
+    });
+</div></code></pre>
+<p>Now build an <code>AccessDenied.cshtml</code> page.</p>
+<pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"container mt-5 mb-3"</span>&gt;
+    &lt;h2&gt;You are unable to access this page.&lt;/h2&gt;
+&lt;/div&gt;
+&lt;form method=<span class="hljs-string">"get"</span>&gt;
+    &lt;div class=<span class="hljs-string">"container mt-5 mb-3"</span>&gt;
+        &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> class=<span class="hljs-string">"btn bg-dark text-light"</span> asp-page=<span class="hljs-string">"/Index"</span>&gt;Home page&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+</div></code></pre>
+<p>This allows the user to go back to the Home page.</p>
+<p>Let's go one step further and block the user from seeing the Admin dropdown menu. In the <code>_Layout.cshtml</code> page.</p>
+<pre class="hljs"><code><div>@<span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User) &amp;&amp; User.IsInRole(<span class="hljs-string">"Admin"</span>))
+{
+    &lt;li class=<span class="hljs-string">"nav-item dropdown"</span>&gt;
+        &lt;a class=<span class="hljs-string">"nav-link dropdown-toggle"</span> href=<span class="hljs-string">"#"</span> role=<span class="hljs-string">"button"</span> data-bs-toggle=<span class="hljs-string">"dropdown"</span> aria-expanded=<span class="hljs-string">"false"</span> id=<span class="hljs-string">"navbarDropdownAdmin"</span>&gt;
+            Admin
+        &lt;/a&gt;
+        &lt;ul class=<span class="hljs-string">"dropdown-menu"</span>&gt;
+            &lt;li&gt;
+                &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/add"</span>&gt;Add Blog Post&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+                &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/list"</span>&gt;List Blog Posts&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/li&gt;
+}
+</div></code></pre>
+<p>This will make the <strong>Admin</strong> dropdown disappear for a basic user.</p>
+<p>This is an example of what a basic user menu looks like.</p>
+<p><img src="assets/images/basic-user-menu.jpg" alt="Basic user menu" title="Basic user menu"></p>
+<h2 id="redirecting-users-based-on-the-return-url">Redirecting users based on the return Url</h2>
+<p>On the <code>login.cshtml.cs</code> Code Behind class we can capture the return url so that if a user isn't authenticated we can send them to the login page and remember where they had came from. When they authenticate we will send them back to the page they came from.</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; OnPost(string? ReturnUrl)
+    {
+        <span class="hljs-keyword">if</span> (ModelState.IsValid)
+        {
+            var signInResult = await signInManager.PasswordSignInAsync(
+            LoginViewModel.Username, LoginViewModel.Password, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>);
+
+            <span class="hljs-keyword">if</span> (signInResult.Succeeded)
+            {
+                <span class="hljs-keyword">if</span> (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    <span class="hljs-built_in">return</span> RedirectToPage(ReturnUrl);
+                }
+
+                <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">else</span>
+            {
+                ...
+</div></code></pre>
+<p>In the <code>OnPost()</code> statement we pass in <code>ReturnUrl</code> as a string parameter.</p>
+<p>Once the User has logged in successfully we check for a return url and if there is one we will redirect the User to that page otherwise we will send them back to the Index page.</p>
 
 </body>
 </html>
