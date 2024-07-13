@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Adding Login and Registration</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
+}
+
+h2 {
+	margin-top: 60px;
+}
+
+h4, h3 {
+	padding-top: 40px!;		
+}
+
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
+}
+
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
+
+}
+blockquote {
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
+}
+</style>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ASP.NET Core Razor Pages Web Development</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Adding Login and Registration <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
+<h1 id="adding-login-and-registration-using-microsoft-identity">Adding Login and Registration Using Microsoft Identity</h1>
+<h2 id="install">Install</h2>
+<blockquote>
+<p>Microsoft.AspNetCore.Identity.EntityFrameworkCore</p>
+</blockquote>
+<p>Create a new <code>AuthDbContext</code> class in <code>Data</code> that inherits from <code>IdentityDbContext</code>.</p>
+<pre class="prettyprint"><code><div>    public class AuthDbContext: IdentityDbContext
+    {
+    }
+</div></code></pre>
+<p>We will create seed data in the following method.</p>
+<pre class="prettyprint"><code><div>    protected override void OnModelCreating(ModelBuilder builder)
+    {
+    }
+</div></code></pre>
+<h2 id="add-connection-string-and-injecting-dbcontext-into-programcs">Add Connection String and Injecting DbContext Into Program.cs</h2>
+<p>In <code>appsettings.json</code> add a connection string.</p>
+<pre class="prettyprint"><code><div>    <span class="hljs-string">"AuthDb"</span>: <span class="hljs-string">"Server=TIGER;Database=BlogAuth;Trusted_Connection=True;TrustServerCertificate=True;"</span>
+</div></code></pre>
+<p>Inject the connection string into <code>Program.cs</code>. We also need to tell our application to use Identity and use the <code>AuthDbContext</code> for our Identity. We will do another injection to add an Identity. We also have to add an Entity Framework store with a type of <code>AuthDbContext</code>.</p>
+<pre class="prettyprint"><code><div>    builder.Services.AddDbContext&lt;AuthDbContext&gt;(options =&gt;
+        options.UseSqlServer(builder.Configuration.GetConnectionString(<span class="hljs-string">"AuthDb"</span>)));
+
+    builder.Services.AddIdentity&lt;IdentityUser, IdentityRole&gt;()
+        .AddEntityFrameworkStores&lt;AuthDbContext&gt;();
+</div></code></pre>
+<p>Change the Http Request pipeline. Before we can use <code>Authorization</code> we have to use <code>Authentication</code>.</p>
+<pre class="prettyprint"><code><div>    app.UseAuthentication();
+</div></code></pre>
+<p>We are now ready to go with using Identity.</p>
+<h2 id="running-entity-framework-core-migrations">Running Entity Framework Core migrations</h2>
+<p>In Package Manager console.</p>
+<pre class="prettyprint"><code><div>    Add-Migration <span class="hljs-string">"Adding Identity."</span> -Context <span class="hljs-string">"AuthDbContext"</span>
+</div></code></pre>
+<p><strong>Note:</strong> we have to specify the context we are using because there are two contexts.</p>
+<p>To create the database.</p>
+<pre class="prettyprint"><code><div>    Update-Database -Context <span class="hljs-string">"AuthDbContext"</span>
+</div></code></pre>
+<p>Once again we have to specify the context we are using.</p>
+<h2 id="implement-a-user-page">Implement a User page</h2>
+<p>Create a new <code>Register</code> class.</p>
+<pre class="prettyprint"><code><div>    [Required]
+    public string Username { get; <span class="hljs-built_in">set</span>; }
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; <span class="hljs-built_in">set</span>; }
+
+    [Required]
+    [MinLength(6)]
+    public string Password { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>Create a new Razor page in the <strong>root</strong> of <code>Pages</code> named <code>Register</code>.</p>
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"container mx-auto"</span>&gt;
+    &lt;div class=<span class="hljs-string">"row justify-content-center"</span>&gt;
+        &lt;div class=<span class="hljs-string">"col-12 col-lg-6"</span>&gt;
+
+            &lt;h1 class=<span class="hljs-string">"mt-5 mb-3 h3"</span>&gt;Register&lt;/h1&gt;
+
+            &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;
+
+                &lt;form method=<span class="hljs-string">"post"</span>&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"RegisterViewModel.Username"</span> required /&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Email&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"email"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"RegisterViewModel.Email"</span> required /&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"RegisterViewModel.Password"</span> required minlength=<span class="hljs-string">"6"</span> /&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> class=<span class="hljs-string">"btn bg-dark text-light"</span>&gt;Register&lt;/button&gt;
+                    &lt;/div&gt;
+
+                &lt;/form&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<p>Now create a constructor in the Code Behind class and a bindable <code>Register</code> instance.</p>
+<pre class="prettyprint"><code><div>    [BindProperty]
+    public Register RegisterViewModel { get; <span class="hljs-built_in">set</span>; }
+
+    private <span class="hljs-built_in">readonly</span> UserManager&lt;IdentityUser&gt; userManager;
+    
+    public RegisterModel(UserManager&lt;IdentityUser&gt; userManager)
+    {
+        this.userManager = userManager;
+    }
+</div></code></pre>
+<p>Create the <code>OnPost()</code> method.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var user = new IdentityUser
+        {
+            UserName = RegisterViewModel.Username,
+            Email = RegisterViewModel.Email
+        };
+
+        var result = await userManager.CreateAsync(user, RegisterViewModel.Password);
+
+        <span class="hljs-keyword">if</span> (result.Succeeded)
+        {
+            ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+            {
+                Type = Enums.NotificationType.Success,
+                Message = <span class="hljs-string">"User registered successfully!"</span>
+            };
+
+            <span class="hljs-built_in">return</span> Page();
+        }
+
+        ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+        {
+            Type = Enums.NotificationType.Error,
+            Message = <span class="hljs-string">"User NOT registered!"</span>
+        };
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>We need to add the partial view, <code>_Notification.cshtml</code> to the top of our <code>Register</code> page.</p>
+<pre class="prettyprint"><code><div>    &lt;h1 class=<span class="hljs-string">"mt-5 mb-3 h3"</span>&gt;Register&lt;/h1&gt;
+    
+    &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;
+</div></code></pre>
+<p>When we run the application we get a <code>System.InvalidOperationException</code> error caused by the DbContexts.</p>
+<h2 id="handling-multiple-dbcontexts">Handling multiple DbContexts</h2>
+<p>We get the error here.</p>
+<pre class="prettyprint"><code><div>    public BlogDbContext(DbContextOptions options) : base(options)
+    {
+    }
+</div></code></pre>
+<p>Now that we have two DbContexts we have to name which context we are using.</p>
+<pre class="prettyprint"><code><div>    public BlogDbContext(DbContextOptions&lt;BlogDbContext&gt; options) : base(options)
+    {
+    }
+</div></code></pre>
+<p>Do this with the <code>AuthDbContext</code> as well.</p>
+<pre class="prettyprint"><code><div>    public AuthDbContext(DbContextOptions&lt;AuthDbContext&gt; options) : base(options)
+    {
+    }
+</div></code></pre>
+<h2 id="testing-register-functionality">Testing Register functionality</h2>
+<p>I create a new user and get an error. Identity has requirements for creating a new User password.</p>
+<p>We can change these requirements in <code>Program.cs</code> by adding a new Services configuration option.</p>
+<pre class="prettyprint"><code><div>    builder.Services.Configure&lt;IdentityOptions&gt;(options =&gt;
+    {
+        // Default password settings
+        options.Password.RequireDigit = <span class="hljs-literal">true</span>;
+        options.Password.RequireNonAlphanumeric = <span class="hljs-literal">true</span>;
+        options.Password.RequireUppercase = <span class="hljs-literal">false</span>;
+        options.Password.RequiredLength = 6;
+    });
+</div></code></pre>
+<p>Change menu items on the <code>Layout.cshtml</code> page.</p>
+<p>Under the <code>ul</code> with a class of &quot;navbar-nav flex-grow-1&quot; add the following section.</p>
+<pre class="prettyprint"><code><div>    ...
+    &lt;/ul&gt;
+    &lt;div class=<span class="hljs-string">"d-flex"</span>&gt;
+        &lt;a href=<span class="hljs-string">"/login"</span> class=<span class="hljs-string">"btn btn-light text-dark me-3"</span>&gt;Login&lt;/a&gt;
+        &lt;a href=<span class="hljs-string">"/register"</span> class=<span class="hljs-string">"btn btn-light text-dark me-3"</span>&gt;Register&lt;/a&gt;
+    &lt;/div&gt;
+</div></code></pre>
+<p>This adds <code>Login</code> and <code>Register</code> buttons.</p>
+<h2 id="implement-the-login-page-and-functionality">Implement the Login page and functionality</h2>
+<p>Create a Razor class form named <code>Login</code>.</p>
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"container mx-auto"</span>&gt;
+    &lt;div class=<span class="hljs-string">"row justify-content-center"</span>&gt;
+        &lt;div class=<span class="hljs-string">"col-12 col-lg-6"</span>&gt;
+
+            &lt;h1 class=<span class="hljs-string">"mt-5 mb-3 h3"</span>&gt;Login&lt;/h1&gt;
+
+            &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;
+
+                &lt;form method=<span class="hljs-string">"post"</span>&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"LoginViewModel.Username"</span> required /&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"LoginViewModel.Password"</span> required minlength=<span class="hljs-string">"6"</span> /&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> class=<span class="hljs-string">"btn bg-dark text-light"</span>&gt;Login&lt;/button&gt;
+                    &lt;/div&gt;
+
+                &lt;/form&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<h3 id="logincshtmlcs">Login.cshtml.cs</h3>
+<pre class="prettyprint"><code><div>    private <span class="hljs-built_in">readonly</span> SignInManager&lt;IdentityUser&gt; signInManager;
+    
+    [BindProperty]
+    public Login LoginViewModel { get; <span class="hljs-built_in">set</span>; }
+    
+    public LoginModel(SignInManager&lt;IdentityUser&gt; signInManager)
+    {
+        this.signInManager = signInManager;
+    }
+    
+    public async Task&lt;IActionResult&gt; OnPost(string? ReturnUrl)
+    {
+        <span class="hljs-keyword">if</span> (ModelState.IsValid)
+        {
+            var signInResult = await signInManager.PasswordSignInAsync(
+            LoginViewModel.Username, LoginViewModel.Password, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>);
+
+            <span class="hljs-keyword">if</span> (signInResult.Succeeded)
+            {
+                <span class="hljs-keyword">if</span> (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    <span class="hljs-built_in">return</span> RedirectToPage(ReturnUrl);
+                }
+            
+                <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">else</span>
+            {
+                ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+                {
+                    Type = Enums.NotificationType.Error,
+                    Message = <span class="hljs-string">"Unable to login"</span>
+                };
+            
+                <span class="hljs-built_in">return</span> Page();
+            }
+        }
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>We use ASP.NET Core's SignIn Identity management to login.</p>
+<p>In _Layout.cshtml we need to add the SignIn Identity. At the top of the page.</p>
+<pre class="prettyprint"><code><div>    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager&lt;IdentityUser&gt; signInManager
+</div></code></pre>
+<p>Now we need to change the Login button code.</p>
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"d-flex align-items-center text-light"</span>&gt;
+        @<span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User))
+        {
+            &lt;div class=<span class="hljs-string">"me-2"</span>&gt;
+                @User?.Identity?.Name
+            &lt;/div&gt;
+
+            &lt;a href=<span class="hljs-string">"/logout"</span> class=<span class="hljs-string">"btn btn-light text-dark me-3"</span>&gt;Logout&lt;/a&gt;
+        }
+        <span class="hljs-keyword">else</span>
+        {
+            &lt;a href=<span class="hljs-string">"/login"</span> class=<span class="hljs-string">"btn btn-light text-dark me-3"</span>&gt;Login&lt;/a&gt;
+            &lt;a href=<span class="hljs-string">"/register"</span> class=<span class="hljs-string">"btn btn-light text-dark me-3"</span>&gt;Register&lt;/a&gt;
+        }
+    &lt;/div&gt;
+</div></code></pre>
+<p>This will change the Login button layout so that if we are logged in we will only see the Logout button and the users name. If we aren't logged in we will see the Login and Register buttons.</p>
+<p>The logged in button view.</p>
+<p><img src="assets/images/logged-in-view.jpg" alt="Logged in view" title="Logged in view"></p>
+<h2 id="implement-logout-functionality">Implement Logout functionality</h2>
+<p>Create a <code>Logout.cshtml</code> Razor page.</p>
+<p>We aren't interested in the Razor page, just the <code>Logout.cshtml.cs</code> Code Behind class.</p>
+<pre class="prettyprint"><code><div>    private <span class="hljs-built_in">readonly</span> SignInManager&lt;IdentityUser&gt; signInManager;
+
+    public LogoutModel(SignInManager&lt;IdentityUser&gt; signInManager)
+    {
+        this.signInManager = signInManager;
+    }
+
+    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        await signInManager.SignOutAsync();
+
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"Index"</span>);
+    }
+</div></code></pre>
+<p>Once again we use the <code>SignInManager</code> class from Identity. This time we just sign out and redirect back to the Index page.</p>
+<h2 id="add-user-roles">Add User Roles</h2>
+<p>We have completed the <strong>authentication</strong> of our users and now we need to give them roles that can <strong>authorise</strong> what they have rights to.</p>
+<p>In the <code>Register.cshtml.cs</code> Code Behind class we have <strong>authenticated</strong> a user but we also need to give the user <strong>authorisation</strong>.</p>
+<p>This is our updated <code>OnPost()</code> method</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var user = new IdentityUser
+        {
+            UserName = RegisterViewModel.Username,
+            Email = RegisterViewModel.Email
+        };
+
+        var result = await userManager.CreateAsync(user, RegisterViewModel.Password);
+
+        <span class="hljs-keyword">if</span> (result.Succeeded)
+        {
+            var rolesResult = await userManager.AddToRoleAsync(user, <span class="hljs-string">"User"</span>);
+
+            <span class="hljs-keyword">if</span> (rolesResult.Succeeded)
+            {
+                ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+                {
+                    Type = Enums.NotificationType.Success,
+                    Message = <span class="hljs-string">"User registered successfully!"</span>
+                };
+
+                <span class="hljs-built_in">return</span> Page();
+            }
+        }
+
+        ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+        {
+            Type = Enums.NotificationType.Error,
+            Message = <span class="hljs-string">"User NOT registered!"</span>
+        };
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>In the code above we have given the new user the <code>User</code> role once we have checked that the new user was created successfully.</p>
+<h2 id="adding-authorisation-to-the-admin-page">Adding Authorisation to the Admin page</h2>
+<p>We have 3 different types of users.</p>
+<ul>
+<li>Admin</li>
+<li>SuperAdmin</li>
+<li>User</li>
+</ul>
+<p>We have 3 types of pages</p>
+<ul>
+<li>Admin pages (Admin, SuperAdmin)</li>
+<li>Blog pages (All)</li>
+<li>Register &amp; Login pages (All)</li>
+</ul>
+<p>Now we want to add Authorisation to our Admin pages. This will bock basic users from seeing these pages.</p>
+<p>We add the following to all page classes in the Admin section</p>
+<pre class="prettyprint"><code><div>    [Authorize]
+</div></code></pre>
+<p>Now if a user isn't logged in they will be blocked from accessing all of these pages. They will get this message.</p>
+<blockquote>
+<p><a href="https://localhost:7100/Account/Login?ReturnUrl=%2Fadmin%2Fblogs%2Fadd">https://localhost:7100/Account/Login?ReturnUrl=%2Fadmin%2Fblogs%2Fadd</a></p>
+</blockquote>
+<p>We can redirect the user to the Login page by creating another service in <code>Program.cs</code>.</p>
+<pre class="prettyprint"><code><div>    builder.Services.ConfigureApplicationCookie(options =&gt;
+    {
+        options.LoginPath = <span class="hljs-string">"/Login"</span>;
+    });
+</div></code></pre>
+<p>This service gracefully redirects a user to the Login page.</p>
+<p>Now if any user is logged in they can access the Admin pages no matter what type of user they are. We now need to restrict access to the Admin pages to only the <code>Admin</code> and <code>SuperAdmin</code> users.</p>
+<h2 id="adding-roles-based-authorisation-to-the-admin-pages">Adding Roles based authorisation to the Admin pages</h2>
+<ul>
+<li>SuperAdmin has the SuperAdmin, Admin and User roles</li>
+<li>Admin has the Admin and User roles</li>
+<li>User has only the User role</li>
+</ul>
+<p>Based on this we can add Roles to our <code>Authorize</code> attribute.</p>
+<pre class="prettyprint"><code><div>    [Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
+</div></code></pre>
+<p><strong>Note:</strong> we don't have to add <code>SuperAdmin</code> because that already has the <code>Admin</code> role.</p>
+<p>Now if I login as a basic User I get the <strong>AccessDenied</strong> error. The is not the behavior that we want to happen. We can change this in the <code>Program.cs</code> class.</p>
+<p>Change the service to this.</p>
+<pre class="prettyprint"><code><div>    builder.Services.ConfigureApplicationCookie(options =&gt;
+    {
+        options.LoginPath = <span class="hljs-string">"/Login"</span>;
+        options.AccessDeniedPath = <span class="hljs-string">"/AccessDenied"</span>;
+    });
+</div></code></pre>
+<p>Now build an <code>AccessDenied.cshtml</code> page.</p>
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"container mt-5 mb-3"</span>&gt;
+    &lt;h2&gt;You are unable to access this page.&lt;/h2&gt;
+&lt;/div&gt;
+&lt;form method=<span class="hljs-string">"get"</span>&gt;
+    &lt;div class=<span class="hljs-string">"container mt-5 mb-3"</span>&gt;
+        &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> class=<span class="hljs-string">"btn bg-dark text-light"</span> asp-page=<span class="hljs-string">"/Index"</span>&gt;Home page&lt;/button&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+</div></code></pre>
+<p>This allows the user to go back to the Home page.</p>
+<p>Let's go one step further and block the user from seeing the Admin dropdown menu. In the <code>_Layout.cshtml</code> page.</p>
+<pre class="prettyprint"><code><div>@<span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User) &amp;&amp; User.IsInRole(<span class="hljs-string">"Admin"</span>))
+{
+    &lt;li class=<span class="hljs-string">"nav-item dropdown"</span>&gt;
+        &lt;a class=<span class="hljs-string">"nav-link dropdown-toggle"</span> href=<span class="hljs-string">"#"</span> role=<span class="hljs-string">"button"</span> data-bs-toggle=<span class="hljs-string">"dropdown"</span> aria-expanded=<span class="hljs-string">"false"</span> id=<span class="hljs-string">"navbarDropdownAdmin"</span>&gt;
+            Admin
+        &lt;/a&gt;
+        &lt;ul class=<span class="hljs-string">"dropdown-menu"</span>&gt;
+            &lt;li&gt;
+                &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/add"</span>&gt;Add Blog Post&lt;/a&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+                &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/list"</span>&gt;List Blog Posts&lt;/a&gt;
+            &lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/li&gt;
+}
+</div></code></pre>
+<p>This will make the <strong>Admin</strong> dropdown disappear for a basic user.</p>
+<p>This is an example of what a basic user menu looks like.</p>
+<p><img src="assets/images/basic-user-menu.jpg" alt="Basic user menu" title="Basic user menu"></p>
+<h2 id="redirecting-users-based-on-the-return-url">Redirecting users based on the return Url</h2>
+<p>On the <code>login.cshtml.cs</code> Code Behind class we can capture the return url so that if a user isn't authenticated we can send them to the login page and remember where they had came from. When they authenticate we will send them back to the page they came from.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; OnPost(string? ReturnUrl)
+    {
+        <span class="hljs-keyword">if</span> (ModelState.IsValid)
+        {
+            var signInResult = await signInManager.PasswordSignInAsync(
+            LoginViewModel.Username, LoginViewModel.Password, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>);
+
+            <span class="hljs-keyword">if</span> (signInResult.Succeeded)
+            {
+                <span class="hljs-keyword">if</span> (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    <span class="hljs-built_in">return</span> RedirectToPage(ReturnUrl);
+                }
+
+                <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">else</span>
+            {
+                ...
+</div></code></pre>
+<p>In the <code>OnPost()</code> statement we pass in <code>ReturnUrl</code> as a string parameter.</p>
+<p>Once the User has logged in successfully we check for a return url and if there is one we will redirect the User to that page otherwise we will send them back to the Index page.</p>
+
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+</body>
+</html>
