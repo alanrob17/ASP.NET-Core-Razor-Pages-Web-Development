@@ -555,8 +555,63 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 }
 </div></code></pre>
 <p>We are now ready to test that we can add a button click into the <code>BlogPostLike</code> table.</p>
-<p>Once we click it won't update the counter but if you refresh the page it will work.</p>
+<p>Once we click it won't update the counter but if you refresh the page it will work. We'll fix this next.</p>
 <p><img src="assets/images/one-like.jpg" alt="A Like has been registered" title="A Like has been registered"></p>
+<h2 id="more-functionality-for-the-like-button">More functionality for the Like button</h2>
+<p>First delete all records in the <code>BlogPostLike</code> table. We want to get rid of duplicates.</p>
+<p>Add a like to the first Blog Post.</p>
+<p>Now we will write code to stop duplicates.</p>
+<p>In the <code>BlogPostLikeController.cs</code> controller add.</p>
+<pre class="hljs"><code><div>    [HttpGet]
+    [Route(<span class="hljs-string">"api/{blogPostId:int}/totalLikes"</span>)]
+    public async Task&lt;IActionResult&gt; GetTotalLikes([FromBody] int BlogPostId)
+    {
+        var totalLikes = await likeRepository.GetTotalLikesForBlog(BlogPostId);
+
+        <span class="hljs-built_in">return</span> Ok(totalLikes);
+    }
+</div></code></pre>
+<p>The <code>GetTotalLikesForBlog()</code> method already exists.</p>
+<p>Now in <code>Details.cshtml</code> we will modify the JavaScript code.</p>
+<p>Change the <code>.then()</code> code to</p>
+<pre class="hljs"><code><div>    .<span class="hljs-keyword">then</span>(() =&gt; {
+        btnLike.innerHTML = <span class="hljs-string">'&lt;i class="bi bi-hand-thumbs-up-fill"&gt;&lt;/i&gt;'</span>;
+        btnLike.removeEventListener(<span class="hljs-string">'click'</span>, addLikeForBlog);
+        getTotalLikes();
+    });
+</div></code></pre>
+<p><strong>Note:</strong> we will write <code>getTotalLikes()</code> next.</p>
+<p>The <code>.innerHTML</code> statement makes the thumbs up full colour. The next line removes the <code>addLikeForBlog</code> so that the user can't click twice on adding a like.</p>
+<p>We now need to get the total Blog Post likes so we need to create another JavaScript function named <code>getTotalLikes()</code>  to retrieve the likes from the Controller method that we just created.</p>
+<pre class="hljs"><code><div>    const totalLikesElement = document.getElementById(<span class="hljs-string">'totalLikes'</span>);
+
+    async <span class="hljs-keyword">function</span> <span class="hljs-function"><span class="hljs-title">getTotalLikes</span></span>() {
+        fetch(<span class="hljs-string">'/api/blogpostlike/@Model.BlogPost.Id/totallikes'</span>, {
+            method: <span class="hljs-string">'GET'</span>,
+            headers: {
+                <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+                <span class="hljs-string">'Accept'</span>: <span class="hljs-string">'*/*'</span>
+            }
+        })
+            .<span class="hljs-keyword">then</span>(data =&gt; data.json())
+            .<span class="hljs-keyword">then</span>(result =&gt; totalLikesElement.innerHTML = result);
+    }
+</div></code></pre>
+<p>Change the <code>Likes</code> Div to.</p>
+<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;span&gt;
+            &lt;a id=<span class="hljs-string">"btnLike"</span> style=<span class="hljs-string">"cursor: pointer"</span>&gt;
+                &lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt;
+            &lt;/a&gt;
+
+            &lt;span id=<span class="hljs-string">"totalLikes"</span>&gt;@Model.TotalLikes&lt;/span&gt; likes
+        &lt;/span&gt;
+    &lt;/di
+</div></code></pre>
+<p>And we are ready to test.</p>
+<p>Select the first Blog Post (This will have 1 like). Click on like again.</p>
+<p><img src="assets/images/completed-likes-counter.jpg" alt="Coloured like button" title="Coloured like button"></p>
+<p>You will notice that the like button has been coloured and the like count is still 1 and hasn't been updated so our functionality is working as expected.</p>
 
 </body>
 </html>

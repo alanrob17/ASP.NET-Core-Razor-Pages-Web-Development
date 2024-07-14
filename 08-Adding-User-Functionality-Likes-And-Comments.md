@@ -270,3 +270,163 @@ Once we click it won't update the counter but if you refresh the page it will wo
 ![A Like has been registered](assets/images/one-like.jpg "A Like has been registered")
 
 ## More functionality for the Like button
+
+First delete all records in the ``BlogPostLike`` table. We want to get rid of duplicates.
+
+Add a like to the first Blog Post.
+
+Now we will write code to stop duplicates.
+
+In the ``BlogPostLikeController.cs`` controller add.
+
+```bash
+    [HttpGet]
+    [Route("{blogPostId:int}/totalLikes")]
+    public async Task<IActionResult> GetTotalLikes([FromRoute] int BlogPostId)
+    {
+        var totalLikes = await likeRepository.GetTotalLikesForBlog(BlogPostId);
+
+        return Ok(totalLikes);
+    }
+```
+
+The ``GetTotalLikesForBlog()`` method already exists.
+
+Now in ``Details.cshtml`` we will modify the JavaScript code.
+
+Change the ``.then()`` code to
+
+```bash
+    .then(() => {
+        btnLike.innerHTML = '<i class="bi bi-hand-thumbs-up-fill"></i>';
+        btnLike.removeEventListener('click', addLikeForBlog);
+        getTotalLikes();
+    });
+```
+
+**Note:** we will write ``getTotalLikes()`` next.
+
+The ``.innerHTML`` statement makes the thumbs up full colour. The next line removes the ``addLikeForBlog`` so that the user can't click twice on adding a like.
+
+We now need to get the total Blog Post likes so we need to create another JavaScript function named ``getTotalLikes()``  to retrieve the likes from the Controller method that we just created.
+
+```bash
+    const totalLikesElement = document.getElementById('totalLikes');
+
+    async function getTotalLikes() {
+        fetch('/api/blogpostlike/@Model.BlogPost.Id/totallikes', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': '*/*'
+            }
+        })
+            .then(data => data.json())
+            .then(result => totalLikesElement.innerHTML = result);
+    }
+```
+
+Change the ``Likes`` Div to.
+
+```bash
+    <div class="mb-3">
+        <span>
+            <a id="btnLike" style="cursor: pointer">
+                <i class="bi bi-hand-thumbs-up"></i>
+            </a>
+
+            <span id="totalLikes">@Model.TotalLikes</span> likes
+        </span>
+    </di
+```
+
+And we are ready to test.
+
+Select the first Blog Post (This will have 1 like). Click on like again.
+
+![Coloured like button](assets/images/completed-likes-counter.jpg "Coloured like button")
+
+You will notice that the like button has been coloured and it has updated the like count to the total likes. If we clicked on the like button again it won't register another like. 
+
+If we refreshed the page it will register another like. We will make changes to stop this.
+
+Create a new method in the ``BlogPostLikeRepository`` to get a list of Likes for a ``BlogPostId``.
+
+```bash
+public async Task<IEnumerable<BlogPostLike>> GetLikesForBlog(int blogPostId)
+{
+    return await blogDbContext.BlogPostLike.Where(x => x.BlogPostId == blogPostId).ToListAsync();
+}
+```
+
+This will give us a list of Likes for the particular ``BlogPostId``. We can use this in our ``Details`` Code Behind class to see if the user has already liked that Blog Post.
+
+In ``Details.cshtml.cs`` add the ``SignInManager`` and ``UserManager`` Identity services.
+
+```bash
+    private readonly SignInManager<IdentityUser> signInManager;
+    private readonly UserManager<IdentityUser> userManager;
+```
+
+In the ``OnGet()`` method.
+
+```bash
+    if (BlogPost != null)
+    {
+        if (signInManager.IsSignedIn(User))
+        {
+            var likes = await likeRepository.GetLikesForBlog(BlogPost.Id);
+    
+            var userId = userManager.GetUserId(User);
+    
+            Liked = likes.Any(x => x.UserId == Guid.Parse(userId)); 
+        }
+    
+        TotalLikes = await likeRepository.GetTotalLikesForBlog(BlogPost.Id);
+    }
+```
+
+First, only signed in users will be able to Like a Blog Post.
+
+Then we get a list of Likes for a Blog Post. Next we get the ``userId`` for the signed in user.
+
+We then check to see if the userId is in the list of Likes. We create a boolean property named ``Liked`` that records the result.
+
+In the ``Details`` Razor page inject the ``SignInManager`` and ``UserManager`` services.
+
+```bash
+    @inject UserManager<IdentityUser> userManager
+    @inject SignInManager<IdentityUser> signInManager
+```
+
+Change the code in the Likes Div.
+
+```bash
+    <div class="mb-3">
+        <span>
+            @if (signInManager.IsSignedIn(User))
+            {
+                @if (Model.Liked)
+                {
+                    <a style="cursor: pointer">
+                        <i class="bi bi-hand-thumbs-up-fill"></i>
+                    </a>
+                }
+                else
+                {
+                    <a id="btnLike" style="cursor: pointer">
+                        <i class="bi bi-hand-thumbs-up"></i>
+                    </a>
+                }
+
+            }
+            <span id="totalLikes">@Model.TotalLikes</span> likes
+        </span>
+    </div>
+```
+
+Inside the span we will check if the user is signed in. If they aren't then they won't see the thumbs up icon so can't like the Blog Post. They will see the number of Likes count.
+
+If you are signed in the thumbs up icon will appear. If you have already liked this post you will see a black thumb else you will be able to like the post.
+
+## Create Domain Model for Blog Post comments
