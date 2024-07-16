@@ -1,374 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>08-Adding-User-Functionality-Likes-And-Comments.md</title>
-<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
-
-<style>
-/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-
-body {
-	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
-	font-size: var(--vscode-markdown-font-size, 14px);
-	padding: 0 26px;
-	line-height: var(--vscode-markdown-line-height, 22px);
-	word-wrap: break-word;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Adding User Functionality with Likes and Comments</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
 }
 
-#code-csp-warning {
-	position: fixed;
-	top: 0;
-	right: 0;
-	color: white;
-	margin: 16px;
-	text-align: center;
-	font-size: 12px;
-	font-family: sans-serif;
-	background-color:#444444;
-	cursor: pointer;
-	padding: 6px;
-	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+h2 {
+	margin-top: 60px;
 }
 
-#code-csp-warning:hover {
-	text-decoration: none;
-	background-color:#007acc;
-	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+h4, h3 {
+	padding-top: 40px!;		
 }
 
-body.scrollBeyondLastLine {
-	margin-bottom: calc(100vh - 22px);
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
 }
 
-body.showEditorSelection .code-line {
-	position: relative;
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
 }
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
 
-body.showEditorSelection .code-active-line:before,
-body.showEditorSelection .code-line:hover:before {
-	content: "";
-	display: block;
-	position: absolute;
-	top: 0;
-	left: -12px;
-	height: 100%;
 }
-
-body.showEditorSelection li.code-active-line:before,
-body.showEditorSelection li.code-line:hover:before {
-	left: -30px;
-}
-
-.vscode-light.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(0, 0, 0, 0.15);
-}
-
-.vscode-light.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(0, 0, 0, 0.40);
-}
-
-.vscode-light.showEditorSelection .code-line .code-line:hover:before {
-	border-left: none;
-}
-
-.vscode-dark.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(255, 255, 255, 0.4);
-}
-
-.vscode-dark.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(255, 255, 255, 0.60);
-}
-
-.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
-	border-left: none;
-}
-
-.vscode-high-contrast.showEditorSelection .code-active-line:before {
-	border-left: 3px solid rgba(255, 160, 0, 0.7);
-}
-
-.vscode-high-contrast.showEditorSelection .code-line:hover:before {
-	border-left: 3px solid rgba(255, 160, 0, 1);
-}
-
-.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
-	border-left: none;
-}
-
-img {
-	max-width: 100%;
-	max-height: 100%;
-}
-
-a {
-	text-decoration: none;
-}
-
-a:hover {
-	text-decoration: underline;
-}
-
-a:focus,
-input:focus,
-select:focus,
-textarea:focus {
-	outline: 1px solid -webkit-focus-ring-color;
-	outline-offset: -1px;
-}
-
-hr {
-	border: 0;
-	height: 2px;
-	border-bottom: 2px solid;
-}
-
-h1 {
-	padding-bottom: 0.3em;
-	line-height: 1.2;
-	border-bottom-width: 1px;
-	border-bottom-style: solid;
-}
-
-h1, h2, h3 {
-	font-weight: normal;
-}
-
-table {
-	border-collapse: collapse;
-}
-
-table > thead > tr > th {
-	text-align: left;
-	border-bottom: 1px solid;
-}
-
-table > thead > tr > th,
-table > thead > tr > td,
-table > tbody > tr > th,
-table > tbody > tr > td {
-	padding: 5px 10px;
-}
-
-table > tbody > tr + tr > td {
-	border-top: 1px solid;
-}
-
 blockquote {
-	margin: 0 7px 0 5px;
-	padding: 0 16px 0 10px;
-	border-left-width: 5px;
-	border-left-style: solid;
-}
-
-code {
-	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
-	font-size: 1em;
-	line-height: 1.357em;
-}
-
-body.wordWrap pre {
-	white-space: pre-wrap;
-}
-
-pre:not(.hljs),
-pre.hljs code > div {
-	padding: 16px;
-	border-radius: 3px;
-	overflow: auto;
-}
-
-pre code {
-	color: var(--vscode-editor-foreground);
-	tab-size: 4;
-}
-
-/** Theming */
-
-.vscode-light pre {
-	background-color: rgba(220, 220, 220, 0.4);
-}
-
-.vscode-dark pre {
-	background-color: rgba(10, 10, 10, 0.4);
-}
-
-.vscode-high-contrast pre {
-	background-color: rgb(0, 0, 0);
-}
-
-.vscode-high-contrast h1 {
-	border-color: rgb(0, 0, 0);
-}
-
-.vscode-light table > thead > tr > th {
-	border-color: rgba(0, 0, 0, 0.69);
-}
-
-.vscode-dark table > thead > tr > th {
-	border-color: rgba(255, 255, 255, 0.69);
-}
-
-.vscode-light h1,
-.vscode-light hr,
-.vscode-light table > tbody > tr + tr > td {
-	border-color: rgba(0, 0, 0, 0.18);
-}
-
-.vscode-dark h1,
-.vscode-dark hr,
-.vscode-dark table > tbody > tr + tr > td {
-	border-color: rgba(255, 255, 255, 0.18);
-}
-
-</style>
-
-<style>
-/* Tomorrow Theme */
-/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
-/* Original theme - https://github.com/chriskempson/tomorrow-theme */
-
-/* Tomorrow Comment */
-.hljs-comment,
-.hljs-quote {
-	color: #8e908c;
-}
-
-/* Tomorrow Red */
-.hljs-variable,
-.hljs-template-variable,
-.hljs-tag,
-.hljs-name,
-.hljs-selector-id,
-.hljs-selector-class,
-.hljs-regexp,
-.hljs-deletion {
-	color: #c82829;
-}
-
-/* Tomorrow Orange */
-.hljs-number,
-.hljs-built_in,
-.hljs-builtin-name,
-.hljs-literal,
-.hljs-type,
-.hljs-params,
-.hljs-meta,
-.hljs-link {
-	color: #f5871f;
-}
-
-/* Tomorrow Yellow */
-.hljs-attribute {
-	color: #eab700;
-}
-
-/* Tomorrow Green */
-.hljs-string,
-.hljs-symbol,
-.hljs-bullet,
-.hljs-addition {
-	color: #718c00;
-}
-
-/* Tomorrow Blue */
-.hljs-title,
-.hljs-section {
-	color: #4271ae;
-}
-
-/* Tomorrow Purple */
-.hljs-keyword,
-.hljs-selector-tag {
-	color: #8959a8;
-}
-
-.hljs {
-	display: block;
-	overflow-x: auto;
-	color: #4d4d4c;
-	padding: 0.5em;
-}
-
-.hljs-emphasis {
-	font-style: italic;
-}
-
-.hljs-strong {
-	font-weight: bold;
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
 }
 </style>
-
-<style>
-/*
- * Markdown PDF CSS
- */
-
- body {
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
-	padding: 0 12px;
-}
-
-pre {
-	background-color: #f8f8f8;
-	border: 1px solid #cccccc;
-	border-radius: 3px;
-	overflow-x: auto;
-	white-space: pre-wrap;
-	overflow-wrap: break-word;
-}
-
-pre:not(.hljs) {
-	padding: 23px;
-	line-height: 19px;
-}
-
-blockquote {
-	background: rgba(127, 127, 127, 0.1);
-	border-color: rgba(0, 122, 204, 0.5);
-}
-
-.emoji {
-	height: 1.4em;
-}
-
-code {
-	font-size: 14px;
-	line-height: 19px;
-}
-
-/* for inline code */
-:not(pre):not(.hljs) > code {
-	color: #C9AE75; /* Change the old color so it seems less like an error */
-	font-size: inherit;
-}
-
-/* Page Break : use <div class="page"/> to insert page break
--------------------------------------------------------- */
-.page {
-	page-break-after: always;
-}
-
-</style>
-
-<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
 </head>
 <body>
-  <script>
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
-          ? 'dark'
-          : 'default'
-    });
-  </script>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ASP.NET Core Razor Pages Web Development</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Adding User Functionality with Likes and Comments <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
 <h1 id="adding-user-functionality-with-likes-and-comments">Adding User Functionality with Likes and Comments</h1>
 <h2 id="domain-model-for-blog-post-likes">Domain Model for Blog Post Likes</h2>
 <p>Create a new Domain Model named <code>BlogPostLike</code>.</p>
-<pre class="hljs"><code><div>    public class BlogPostLike
+<pre class="prettyprint"><code><div>    public class BlogPostLike
     {
         public int Id { get; <span class="hljs-built_in">set</span>; }
         public int BlogPostId { get; <span class="hljs-built_in">set</span>; }
@@ -376,10 +85,10 @@ code {
     }
 </div></code></pre>
 <p>In the <code>BlogPost</code> Domain Model add a new navigation property.</p>
-<pre class="hljs"><code><div>    public ICollection&lt;BlogPostLike&gt; Likes { get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public ICollection&lt;BlogPostLike&gt; Likes { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>In The <code>BlogDbContext.cs</code> file add.</p>
-<pre class="hljs"><code><div>    public DbSet&lt;BlogPostLike&gt; BlogPostLike { get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public DbSet&lt;BlogPostLike&gt; BlogPostLike { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>Do a new migration.</p>
 <blockquote>
@@ -393,13 +102,13 @@ code {
 <p>Install Bootstrap icons.<br>
 <a href="https://icons.getbootstrap.com/#install">Get bootstrap Icons</a></p>
 <p>Add the CDN link to our <code>_Layout.cshtml</code> page in the header section.</p>
-<pre class="hljs"><code><div>&lt;link rel=<span class="hljs-string">"stylesheet"</span> href=<span class="hljs-string">"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;link rel=<span class="hljs-string">"stylesheet"</span> href=<span class="hljs-string">"https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"</span>&gt;
 </div></code></pre>
 <p>We want to use a thumbs up icon on our <code>Details</code> page. Find it on the Icons main page.</p>
-<pre class="hljs"><code><div>    &lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt;
+<pre class="prettyprint"><code><div>    &lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt;
 </div></code></pre>
 <p>Add it to a new Div on our page. We will add a number of likes.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
         &lt;span&gt;&lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt; 60 likes&lt;/span&gt;
     &lt;/div&gt;
 </div></code></pre>
@@ -413,7 +122,7 @@ code {
 </ul>
 <p>Now in the Code Behind class we will get the number of likes for an article from the database. First we need to create a <code>IBlogPostLikeRepository</code> interface in the Repository and an implementation class <code>LikeRepository</code>.</p>
 <p>Add our first method into our <code>IBlogPostLikeRepository</code> interface.</p>
-<pre class="hljs"><code><div>    public interface IBlogPostLikeRepository
+<pre class="prettyprint"><code><div>    public interface IBlogPostLikeRepository
     {
         Task&lt;int&gt; GetPostTotalLikes(int blogPostId);
     }
@@ -421,10 +130,10 @@ code {
 <p>Create an implementation of our interface method.</p>
 <p>We also need a context to the database and to inject the services into our application.</p>
 <p>In <code>Program.cs</code> add.</p>
-<pre class="hljs"><code><div>    builder.Services.AddScoped&lt;IBlogPostLikeRepository, BlogPostLikeRepository&gt;();
+<pre class="prettyprint"><code><div>    builder.Services.AddScoped&lt;IBlogPostLikeRepository, BlogPostLikeRepository&gt;();
 </div></code></pre>
 <p>Add your context to the <code>BlogPostLikeRepository</code> constructor and create your method implementation.</p>
-<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext;
+<pre class="prettyprint"><code><div>    private <span class="hljs-built_in">readonly</span> BlogDbContext blogDbContext;
 
     public BlogPostLikeRepository(BlogDbContext blogDbContext)
     {
@@ -440,7 +149,7 @@ code {
 <p>Inject the <code>IBlogPostLikeRepository</code> into our constructor. Add the number of likes for our Blog Post in the <code>OnGet()</code> method.</p>
 <p>Create a new public property to store the likes named <code>TotalLikes</code>.</p>
 <h3 id="blogpagedetailscshtmlcs">BlogPage/Details.cshtml.cs</h3>
-<pre class="hljs"><code><div>private <span class="hljs-built_in">readonly</span> IBlogPostRepository blogPostRepository;
+<pre class="prettyprint"><code><div>private <span class="hljs-built_in">readonly</span> IBlogPostRepository blogPostRepository;
 private <span class="hljs-built_in">readonly</span> IBlogPostLikeRepository blogPostLikeRepository;
 
 public int TotalLikes { get; <span class="hljs-built_in">set</span>; }
@@ -465,13 +174,13 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 }
 </div></code></pre>
 <p>We can now use <code>TotalLikes</code> in our <code>Details</code> page.</p>
-<pre class="hljs"><code><div>    &lt;span&gt;&lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt; @Model.TotalLikes likes&lt;/span&gt;
+<pre class="prettyprint"><code><div>    &lt;span&gt;&lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt; @Model.TotalLikes likes&lt;/span&gt;
 </div></code></pre>
 <p>This should give us the total number of likes which will be 0 because we haven't added any likes yet.</p>
 <p><img src="assets/images/zero-likes.jpg" alt="Zero likes" title="Zero likes"></p>
 <h2 id="adding-a-like-to-a-blog-post">Adding a like to a Blog Post</h2>
 <p>We will add an anchor element as a button to our like span.</p>
-<pre class="hljs"><code><div>    &lt;span&gt;
+<pre class="prettyprint"><code><div>    &lt;span&gt;
         &lt;a id=<span class="hljs-string">"btnLike"</span> style=<span class="hljs-string">"cursor: pointer"</span>&gt;
             &lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt;
         &lt;/a&gt;
@@ -480,13 +189,13 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>Now we can add some JavaScript to save the <code>click</code> event to write the result to our database. To do this we will create a new Controller named <code>BlogPostLikeController</code>. We will also create a new ViewModel named <code>AddLike</code>.</p>
 <h3 id="viewmodeladdblogpostlikerequestcs">ViewModel/AddBlogPostLikeRequest.cs</h3>
-<pre class="hljs"><code><div>    public int BlogPostId { get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public int BlogPostId { get; <span class="hljs-built_in">set</span>; }
     public Guid UserId { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <h3 id="blogpostlikecontrollercs">BlogPostLikeController.cs</h3>
 <p>Add an <code>ApiController</code> attribute to state that this Controller doesn't have any views.</p>
 <p>Add a route for <code>api/blogpostlike</code>.</p>
-<pre class="hljs"><code><div>    [ApiController]
+<pre class="prettyprint"><code><div>    [ApiController]
     [Route(<span class="hljs-string">"api/[controller]"</span>)]
     public class BlogPostLikeController : Controller
     {
@@ -500,7 +209,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>After doing this our route will be, <code>api/blogpostlike/add</code>.</p>
 <p>At this stage we will have to add a new method named <code>AddLikeForBlog</code> to our <code>BlogPostLikeRepository</code>.</p>
-<pre class="hljs"><code><div>    public async Task AddLikeForBlog(int blogPostId, Guid userId)
+<pre class="prettyprint"><code><div>    public async Task AddLikeForBlog(int blogPostId, Guid userId)
     {
         var like = new BlogPostLike
         {
@@ -513,7 +222,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
     }
 </div></code></pre>
 <p>Use this method in <code>BlogPostLikeController</code>.</p>
-<pre class="hljs"><code><div>    [Route(<span class="hljs-string">"Add"</span>)]
+<pre class="prettyprint"><code><div>    [Route(<span class="hljs-string">"Add"</span>)]
     [HttpPost]
     public async Task&lt;IActionResult&gt; AddLike([FromBody] AddBlogPostLikeRequest addLike)
     {
@@ -526,11 +235,11 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>Our thumb icon has a button click with an Id of <code>btnLike</code>. We create an <code>addEventListener</code> to capture this click.</p>
 <p>Getting the <code>BlogPostId</code> is easy as it comes from our model.</p>
 <p>To get the <code>userId</code> we have to inject the UserManager from Identity. We can do this by adding the following into <code>Details.cshtml</code>.</p>
-<pre class="hljs"><code><div>    @using Microsoft.AspNetCore.Identity
+<pre class="prettyprint"><code><div>    @using Microsoft.AspNetCore.Identity
     @inject UserManager&lt;IdentityUser&gt; userManager
 </div></code></pre>
 <p>This is the JavaScript we need to add a Like.</p>
-<pre class="hljs"><code><div>@section Scripts {
+<pre class="prettyprint"><code><div>@section Scripts {
 &lt;script&gt;
     const btnLike = document.getElementById(<span class="hljs-string">'btnLike'</span>);
 
@@ -562,7 +271,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>Add a Like to the first Blog Post.</p>
 <p>Now we will write code to stop duplicates.</p>
 <p>In the <code>BlogPostLikeController.cs</code> controller add.</p>
-<pre class="hljs"><code><div>    [HttpGet]
+<pre class="prettyprint"><code><div>    [HttpGet]
     [Route(<span class="hljs-string">"{blogPostId:int}/totalLikes"</span>)]
     public async Task&lt;IActionResult&gt; GetTotalLikes([FromRoute] int BlogPostId)
     {
@@ -574,7 +283,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>The <code>GetTotalLikesForBlog()</code> repository method already exists.</p>
 <p>Now in <code>Details.cshtml</code> we will modify the JavaScript code.</p>
 <p>Change the <code>.then()</code> code to</p>
-<pre class="hljs"><code><div>    .<span class="hljs-keyword">then</span>(() =&gt; {
+<pre class="prettyprint"><code><div>    .<span class="hljs-keyword">then</span>(() =&gt; {
         btnLike.innerHTML = <span class="hljs-string">'&lt;i class="bi bi-hand-thumbs-up-fill"&gt;&lt;/i&gt;'</span>;
         btnLike.removeEventListener(<span class="hljs-string">'click'</span>, addLikeForBlog);
         getTotalLikes();
@@ -583,7 +292,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p><strong>Note:</strong> we will write <code>getTotalLikes()</code> next.</p>
 <p>The <code>.innerHTML</code> statement makes the thumbs up full colour. The next line removes the <code>addLikeForBlog</code> so that the user can't click twice on adding a like.</p>
 <p>We now need to get the total Blog Post likes so we need to create another JavaScript function named <code>getTotalLikes()</code>  to retrieve the likes from the Controller method that we just created.</p>
-<pre class="hljs"><code><div>    const totalLikesElement = document.getElementById(<span class="hljs-string">'totalLikes'</span>);
+<pre class="prettyprint"><code><div>    const totalLikesElement = document.getElementById(<span class="hljs-string">'totalLikes'</span>);
 
     async <span class="hljs-keyword">function</span> <span class="hljs-function"><span class="hljs-title">getTotalLikes</span></span>() {
         fetch(<span class="hljs-string">'/api/blogpostlike/@Model.BlogPost.Id/totallikes'</span>, {
@@ -598,7 +307,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
     }
 </div></code></pre>
 <p>Change the <code>Likes</code> Div to.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
         &lt;span&gt;
             &lt;a id=<span class="hljs-string">"btnLike"</span> style=<span class="hljs-string">"cursor: pointer"</span>&gt;
                 &lt;i class=<span class="hljs-string">"bi bi-hand-thumbs-up"</span>&gt;&lt;/i&gt;
@@ -614,18 +323,18 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>You will notice that the like button has been coloured and it has updated the like count to the total likes. If we clicked on the like button again it won't register another like.</p>
 <p>If we refreshed the page it will register another like. We will make changes to stop this.</p>
 <p>Create a new method in the <code>BlogPostLikeRepository</code> to get a list of Likes for a <code>BlogPostId</code>.</p>
-<pre class="hljs"><code><div>public async Task&lt;IEnumerable&lt;BlogPostLike&gt;&gt; GetLikesForBlog(int blogPostId)
+<pre class="prettyprint"><code><div>public async Task&lt;IEnumerable&lt;BlogPostLike&gt;&gt; GetLikesForBlog(int blogPostId)
 {
     <span class="hljs-built_in">return</span> await blogDbContext.BlogPostLike.Where(x =&gt; x.BlogPostId == blogPostId).ToListAsync();
 }
 </div></code></pre>
 <p>This will give us a list of Likes for the particular <code>BlogPostId</code>. We can use this in our <code>Details</code> Code Behind class to see if the user has already liked that Blog Post.</p>
 <p>In <code>Details.cshtml.cs</code> add the <code>SignInManager</code> and <code>UserManager</code> Identity services.</p>
-<pre class="hljs"><code><div>    private <span class="hljs-built_in">readonly</span> SignInManager&lt;IdentityUser&gt; signInManager;
+<pre class="prettyprint"><code><div>    private <span class="hljs-built_in">readonly</span> SignInManager&lt;IdentityUser&gt; signInManager;
     private <span class="hljs-built_in">readonly</span> UserManager&lt;IdentityUser&gt; userManager;
 </div></code></pre>
 <p>In the <code>OnGet()</code> method.</p>
-<pre class="hljs"><code><div>    <span class="hljs-keyword">if</span> (BlogPost != null)
+<pre class="prettyprint"><code><div>    <span class="hljs-keyword">if</span> (BlogPost != null)
     {
         <span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User))
         {
@@ -643,11 +352,11 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>Then we get a list of Likes for a Blog Post. Next we get the <code>userId</code> for the signed in user.</p>
 <p>We then check to see if the userId is in the list of Likes. We create a boolean property named <code>Liked</code> that records the result.</p>
 <p>In the <code>Details</code> Razor page inject the <code>SignInManager</code> and <code>UserManager</code> services.</p>
-<pre class="hljs"><code><div>    @inject UserManager&lt;IdentityUser&gt; userManager
+<pre class="prettyprint"><code><div>    @inject UserManager&lt;IdentityUser&gt; userManager
     @inject SignInManager&lt;IdentityUser&gt; signInManager
 </div></code></pre>
 <p>Change the code in the Likes Div.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
         &lt;span&gt;
             @<span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User))
             {
@@ -673,7 +382,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>If you are signed in the thumbs up icon will appear. If you have already liked this post you will see a black thumb else you will be able to like the post.</p>
 <h2 id="create-domain-model-for-blog-post-comments">Create Domain Model for Blog Post comments</h2>
 <p>In <code>Models/Domain</code> add the <code>BlogPostComment</code> model.</p>
-<pre class="hljs"><code><div>    public class BlogPostComment
+<pre class="prettyprint"><code><div>    public class BlogPostComment
     {
         public Guid Id { get; <span class="hljs-built_in">set</span>; }
 
@@ -687,10 +396,10 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
     }
 </div></code></pre>
 <p>In the Domain/Model <code>BlogPost</code> model add an ICollection for <code>BlogPostComment</code>.</p>
-<pre class="hljs"><code><div>    public ICollection&lt;BlogPostComment&gt; Comments { get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public ICollection&lt;BlogPostComment&gt; Comments { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>In the <code>BlogDbContext</code> add a DBSet.</p>
-<pre class="hljs"><code><div>    public DbSet&lt;BlogPostComment&gt; BlogPostComment {  get; <span class="hljs-built_in">set</span>; } 
+<pre class="prettyprint"><code><div>    public DbSet&lt;BlogPostComment&gt; BlogPostComment {  get; <span class="hljs-built_in">set</span>; } 
 </div></code></pre>
 <p>Compile your application and do the migration</p>
 <blockquote>
@@ -702,7 +411,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </blockquote>
 <p>You should have a new table named <code>BlogPostComment</code> in your Blog database.</p>
 <p>Now we will add a <code>Comment</code> section into our <code>BlogPage/Details</code> Razor page below the <code>Content</code> section.</p>
-<pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"card"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"card"</span>&gt;
     &lt;div class=<span class="hljs-string">"card-header"</span>&gt;
         &lt;h5&gt;Comments&lt;/h5&gt;
 
@@ -728,13 +437,13 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>We have to be logged in to leave a comment. Run the application to test the comment section.</p>
 <p><img src="assets/images/comment-section.jpg" alt="Comment section" title="Comment section"></p>
 <p>Now we can add the functionality to get the Comments section working. We'll do this by adding an <code>OnPost()</code> method.</p>
-<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
     {
 
     }
 </div></code></pre>
 <p>Before we can complete this we will have to add a new Interface class named <code>IBlogPostCommentRepository</code> and its implementation class.</p>
-<pre class="hljs"><code><div>    public async Task&lt;BlogPostComment&gt; AddComment(BlogPostComment blogPostComment)
+<pre class="prettyprint"><code><div>    public async Task&lt;BlogPostComment&gt; AddComment(BlogPostComment blogPostComment)
     {
         await blogDbContext.BlogPostComment.AddAsync(blogPostComment);
         await blogDbContext.SaveChangesAsync();
@@ -744,17 +453,17 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>This saves the comment to the database.</p>
 <p>Before we can use this repository we have to inject the service into the application.</p>
-<pre class="hljs"><code><div>    builder.Services.AddScoped&lt;IBlogPostCommentRepository, BlogPostCommentRepository&gt;();
+<pre class="prettyprint"><code><div>    builder.Services.AddScoped&lt;IBlogPostCommentRepository, BlogPostCommentRepository&gt;();
 </div></code></pre>
 <p>Now back in <code>Details.cshtml.cs</code>.</p>
 <p>Inject the <code>IBlogPostCommentRepository</code> service into the constructor and create a private field named <code>commentRepository</code>.</p>
 <p>Create a new property.</p>
-<pre class="hljs"><code><div>    [BindProperty]
+<pre class="prettyprint"><code><div>    [BindProperty]
     public int BlogPostId { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>This has to have a two-way binding because we need to use this Id in the <code>OnGet()</code> method and the <code>OnPost()</code> method.</p>
 <p>In the <code>OnGet()</code> method we have to give <code>BlogPostId</code> a value.</p>
-<pre class="hljs"><code><div>    <span class="hljs-keyword">if</span> (BlogPost != null)
+<pre class="prettyprint"><code><div>    <span class="hljs-keyword">if</span> (BlogPost != null)
     {
         BlogPostId = BlogPost.Id;
 
@@ -773,7 +482,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>We will also change <code>BlogPost.Id</code> to <code>BlogPostId</code> in this section.</p>
 <p>We will also save the <code>BlogPostId</code> value as a hidden value in the Post Form section of our <code>Details</code> Razor page.</p>
-<pre class="hljs"><code><div>    &lt;form method=<span class="hljs-string">"post"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;form method=<span class="hljs-string">"post"</span>&gt;
         &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
             &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Comment Description&lt;/label&gt;
             &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"CommentDescription"</span> /&gt;
@@ -785,15 +494,15 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
     &lt;/form&gt;
 </div></code></pre>
 <p>Create a new property named <code>CommentDescription</code>.</p>
-<pre class="hljs"><code><div>    [BindProperty]
+<pre class="prettyprint"><code><div>    [BindProperty]
     public string CommentDescription { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>We will add this to the Form for the Comment Description input value.</p>
-<pre class="hljs"><code><div>    &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Comment Description&lt;/label&gt;
+<pre class="prettyprint"><code><div>    &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Comment Description&lt;/label&gt;
     &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"CommentDescription"</span> /&gt;
 </div></code></pre>
 <p>We can now finish the <code>OnPost()</code> method.</p>
-<pre class="hljs"><code><div>public async Task&lt;IActionResult&gt; OnPost(string urlHandle)
+<pre class="prettyprint"><code><div>public async Task&lt;IActionResult&gt; OnPost(string urlHandle)
 {
     <span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User) &amp;&amp; !string.IsNullOrWhiteSpace(CommentDescription))
     {
@@ -819,18 +528,18 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p><strong>Note:</strong> I made a mistake in this code which compiled but failed in runtime. I had <code>BlogPostId = BlogPost.Id</code> when <code>BlogPost.Id</code> didn't exist in the <code>OnPost()</code> method. I had a 2 way bindable <code>BlogPostId</code> property that I should have been using instead.</p>
 <h2 id="displaying-the-comments">Displaying the Comments</h2>
 <p>we need to create a new method in the <code>BlogPostCommentRepository</code> to get a list of comments for a Blog Post.</p>
-<pre class="hljs"><code><div>public async Task&lt;IEnumerable&lt;BlogPostComment&gt;&gt; GetComments(int blogPostId)
+<pre class="prettyprint"><code><div>public async Task&lt;IEnumerable&lt;BlogPostComment&gt;&gt; GetComments(int blogPostId)
 {
     <span class="hljs-built_in">return</span> await blogDbContext.BlogPostComment.Where(x =&gt; x.BlogPostId == blogPostId).ToListAsync();
 }
 </div></code></pre>
 <p>Now we can use this method in the <code>OnGet()</code> method of the <code>Details.cshtml.cs</code> class.</p>
 <p>In the <code>signInManager.IsSignedIn(User)</code> <strong>if</strong> statement we can get the comments.</p>
-<pre class="hljs"><code><div>    Comments = await commentRepository.GetComments(BlogPostId);
+<pre class="prettyprint"><code><div>    Comments = await commentRepository.GetComments(BlogPostId);
 </div></code></pre>
 <p>We need to create a new <code>Comments</code> List property to use the comments on the <code>Details</code> Razor page.</p>
 <p>We can't use the <code>BlogPostComment</code> Domain model for this because we need to use the userId to find the user name for display. We can create a new View Model named <code>BlogComment</code>.</p>
-<pre class="hljs"><code><div>    public class BlogComment
+<pre class="prettyprint"><code><div>    public class BlogComment
     {
         public string Description { get; <span class="hljs-built_in">set</span>; }
         public DateTime DateAdded { get; <span class="hljs-built_in">set</span>; }
@@ -839,7 +548,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>This model uses the <code>Username</code> instead of the <code>UserId</code> and allows us to use the name of the person who created the comment.</p>
 <p>Create a private method in <code>Details.cshtml.cs</code> named <code>GetComments()</code>.</p>
-<pre class="hljs"><code><div>private async Task <span class="hljs-function"><span class="hljs-title">GetComments</span></span>()
+<pre class="prettyprint"><code><div>private async Task <span class="hljs-function"><span class="hljs-title">GetComments</span></span>()
 {
     var blogPostComments = await commentRepository.GetComments(BlogPost.Id);
 
@@ -860,7 +569,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>This gets the comments from the <code>BlogPostComment</code> list and adds them to a <code>BlogComment</code> list.</p>
 <p>Now fill in the <code>card-body</code> Div.</p>
-<pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"card-body"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"card-body"</span>&gt;
     @<span class="hljs-keyword">if</span> (Model.Comments != null &amp;&amp; Model.Comments.Any())
     {
         @foreach (var comment <span class="hljs-keyword">in</span> Model.Comments)
@@ -885,7 +594,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 &lt;/div&gt;
 </div></code></pre>
 <p>In the <code>OnGet()</code> method add a call to <code>GetComments()</code> inside the <strong>signInManager</strong> section of the <code>if</code> block.</p>
-<pre class="hljs"><code><div>    <span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User))
+<pre class="prettyprint"><code><div>    <span class="hljs-keyword">if</span> (signInManager.IsSignedIn(User))
     {
         var likes = await likeRepository.GetLikesForBlog(BlogPostId);
 
@@ -910,7 +619,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>There is another class in this folder named <code>BlogDbContextModelSnapshot.cs</code>.</p>
 <p>This class keeps a list of all of the models you have created.</p>
 <p>It created an Entity.</p>
-<pre class="hljs"><code><div>modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.Like"</span>, b =&gt;
+<pre class="prettyprint"><code><div>modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.Like"</span>, b =&gt;
     {
         b.Property&lt;int&gt;(<span class="hljs-string">"Id"</span>)
             .ValueGeneratedOnAdd()
@@ -932,7 +641,7 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
     });
 </div></code></pre>
 <p>And another Entity.</p>
-<pre class="hljs"><code><div>modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.Like"</span>, b =&gt;
+<pre class="prettyprint"><code><div>modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.Like"</span>, b =&gt;
     {
         b.HasOne(<span class="hljs-string">"Blog.Models.Domain.BlogPost"</span>, null)
             .WithMany(<span class="hljs-string">"Likes"</span>)
@@ -946,15 +655,15 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>To gracefully rollback I found that you could delete <code>20240713051234_Add Like domain model.cs</code>.</p>
 <p>Also delete the Table <code>Like</code> in the database.</p>
 <p>Now you can run this command to remove the migration.</p>
-<pre class="hljs"><code><div>    Remove-Migration -Context BlogDbContext
+<pre class="prettyprint"><code><div>    Remove-Migration -Context BlogDbContext
 </div></code></pre>
 <p>This will remove the last migration and if you look in <code>BlogDbContextModelSnapshot.cs</code> you will see that the last 2 Entities that were described above have been removed.</p>
 <p>Now you can fix your Model by renaming it to <code>BlogPostLike.cs</code>. Change the fields to what you want.</p>
 <p>Make sure to change the <code>BlogPost</code> Navigation link to.</p>
-<pre class="hljs"><code><div>    public ICollection&lt;BlogPostLike&gt; Likes { get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public ICollection&lt;BlogPostLike&gt; Likes { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>Change the <code>BlogDbContext</code> to.</p>
-<pre class="hljs"><code><div>    public DbSet&lt;BlogPostComment&gt; BlogPostComment {  get; <span class="hljs-built_in">set</span>; }
+<pre class="prettyprint"><code><div>    public DbSet&lt;BlogPostComment&gt; BlogPostComment {  get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>Now you are ready to do the revised <code>Add-Migration</code>.</p>
 <blockquote>
@@ -965,11 +674,11 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 <p>Update-Database -Context BlogDbContext</p>
 </blockquote>
 <p>Now you should see the <code>BlogPostLike</code> table in the database. Look at your <code>BlogDbContextModelSnapshot.cs</code> and  you should see the 2 new Entities that you just created.</p>
-<pre class="hljs"><code><div>    modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.BlogPostLike"</span>, b =&gt;
+<pre class="prettyprint"><code><div>    modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.BlogPostLike"</span>, b =&gt;
     ...
 </div></code></pre>
 <p>And.</p>
-<pre class="hljs"><code><div>    modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.BlogPostLike"</span>, b =&gt;
+<pre class="prettyprint"><code><div>    modelBuilder.Entity(<span class="hljs-string">"Blog.Models.Domain.BlogPostLike"</span>, b =&gt;
         {
             b.HasOne(<span class="hljs-string">"Blog.Models.Domain.BlogPost"</span>, null)
                 .WithMany(<span class="hljs-string">"Likes"</span>)
@@ -980,5 +689,20 @@ public async Task&lt;IActionResult&gt; OnGet(string urlHandle)
 </div></code></pre>
 <p>Now your <code>BlogDbContext</code> will be working properly.</p>
 
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
 </body>
 </html>

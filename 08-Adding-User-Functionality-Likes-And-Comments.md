@@ -105,7 +105,7 @@ Add your context to the ``BlogPostLikeRepository`` constructor and create your m
     }
 ```
 
-We can now use this repository in our ``BlogPage\Details`` Code Behind class.
+We can now use this repository in our ``BlogPage/Details`` Code Behind class.
 
 Inject the ``IBlogPostLikeRepository`` into our constructor. Add the number of likes for our Blog Post in the ``OnGet()`` method.
 
@@ -173,7 +173,7 @@ Now we can add some JavaScript to save the ``click`` event to write the result t
 
 ### BlogPostLikeController.cs
 
-Add an ApiController attribute to state that this Controller doesn't have any views.
+Add an ``ApiController`` attribute to state that this Controller doesn't have any views.
 
 Add a route for ``api/blogpostlike``.
 
@@ -222,13 +222,13 @@ Use this method in ``BlogPostLikeController``.
     }
 ```
 
-We are now at the stage of writing JavaScript using a ``Fetch`` command to add our like to the database.
+We are now at the stage of writing JavaScript using a ``Fetch`` command to add our Like to the database.
 
-Our thumb icon has a button click with an id of ``btnLike``. We create an ``addEventListener`` to capture this click.
+Our thumb icon has a button click with an Id of ``btnLike``. We create an ``addEventListener`` to capture this click.
 
 Getting the ``BlogPostId`` is easy as it comes from our model.
 
-Th get the ``userId`` we have to inject the UserManager from Identity. We can do this by adding the following into ``Details.cshtml``.
+To get the ``userId`` we have to inject the UserManager from Identity. We can do this by adding the following into ``Details.cshtml``.
 
 ```bash
     @using Microsoft.AspNetCore.Identity
@@ -273,7 +273,7 @@ Once we click it won't update the counter but if you refresh the page it will wo
 
 First delete all records in the ``BlogPostLike`` table. We want to get rid of duplicates.
 
-Add a like to the first Blog Post.
+Add a Like to the first Blog Post.
 
 Now we will write code to stop duplicates.
 
@@ -290,7 +290,7 @@ In the ``BlogPostLikeController.cs`` controller add.
     }
 ```
 
-The ``GetTotalLikesForBlog()`` method already exists.
+The ``GetTotalLikesForBlog()`` repository method already exists.
 
 Now in ``Details.cshtml`` we will modify the JavaScript code.
 
@@ -430,3 +430,421 @@ Inside the span we will check if the user is signed in. If they aren't then they
 If you are signed in the thumbs up icon will appear. If you have already liked this post you will see a black thumb else you will be able to like the post.
 
 ## Create Domain Model for Blog Post comments
+
+In ``Models/Domain`` add the ``BlogPostComment`` model.
+
+```bash
+    public class BlogPostComment
+    {
+        public Guid Id { get; set; }
+
+        public string Description { get; set; }
+
+        public Guid BlogPostId { get; set; }
+
+        public Guid UserId { get; set; }
+
+        public DateTime DateAdded { get; set; }
+    }
+```
+
+In the Domain/Model ``BlogPost`` model add an ICollection for ``BlogPostComment``.
+
+```bash
+    public ICollection<BlogPostComment> Comments { get; set; }
+```
+
+In the ``BlogDbContext`` add a DBSet.
+
+```bash
+    public DbSet<BlogPostComment> BlogPostComment {  get; set; } 
+```
+
+Compile your application and do the migration
+
+> Add-Migration "Add BlogPostComment domain model." -Context BlogDbContext
+
+Now update the database.
+
+> Update-Database -Context BlogDbContext
+
+You should have a new table named ``BlogPostComment`` in your Blog database.
+
+Now we will add a ``Comment`` section into our ``BlogPage/Details`` Razor page below the ``Content`` section.
+
+```bash
+<div class="card">
+    <div class="card-header">
+        <h5>Comments</h5>
+
+        @if (signInManager.IsSignedIn(User))
+        {
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Comment Description</label>
+                    <input type="text" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-dark">Add Comment</button>
+                    <input type="hidden" asp-for="BlogPostId" />
+                </div>
+            </form>
+        }
+    </div>
+    <div class="card-body">
+
+    </div>
+</div>
+```
+
+We have to be logged in to leave a comment. Run the application to test the comment section.
+
+![Comment section](assets/images/comment-section.jpg "Comment section")
+
+Now we can add the functionality to get the Comments section working. We'll do this by adding an ``OnPost()`` method.
+
+```bash
+    public async Task<IActionResult> OnPost()
+    {
+
+    }
+```
+
+Before we can complete this we will have to add a new Interface class named ``IBlogPostCommentRepository`` and its implementation class.
+
+```bash
+    public async Task<BlogPostComment> AddComment(BlogPostComment blogPostComment)
+    {
+        await blogDbContext.BlogPostComment.AddAsync(blogPostComment);
+        await blogDbContext.SaveChangesAsync();
+
+        return blogPostComment;
+    }
+```
+
+This saves the comment to the database.
+
+Before we can use this repository we have to inject the service into the application.
+
+```bash
+    builder.Services.AddScoped<IBlogPostCommentRepository, BlogPostCommentRepository>();
+```
+
+Now back in ``Details.cshtml.cs``.
+
+Inject the ``IBlogPostCommentRepository`` service into the constructor and create a private field named ``commentRepository``.
+
+Create a new property.
+
+```bash
+    [BindProperty]
+    public int BlogPostId { get; set; }
+```
+
+This has to have a two-way binding because we need to use this Id in the ``OnGet()`` method and the ``OnPost()`` method.
+
+In the ``OnGet()`` method we have to give ``BlogPostId`` a value.
+
+```bash
+    if (BlogPost != null)
+    {
+        BlogPostId = BlogPost.Id;
+
+        if (signInManager.IsSignedIn(User))
+        {
+            var likes = await likeRepository.GetLikesForBlog(BlogPostId);
+
+            var userId = userManager.GetUserId(User);
+
+            Liked = likes.Any(x => x.UserId == Guid.Parse(userId)); 
+        }
+
+
+        TotalLikes = await likeRepository.GetTotalLikesForBlog(BlogPostId);
+    }
+```
+
+We will also change ``BlogPost.Id`` to ``BlogPostId`` in this section.
+
+We will also save the ``BlogPostId`` value as a hidden value in the Post Form section of our ``Details`` Razor page.
+
+```bash
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Comment Description</label>
+            <input type="text" class="form-control" asp-for="CommentDescription" />
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-dark">Add Comment</button>
+            <input type="hidden" asp-for="BlogPostId" />
+        </div>
+    </form>
+```
+
+Create a new property named ``CommentDescription``.
+
+```bash
+    [BindProperty]
+    public string CommentDescription { get; set; }
+```
+
+We will add this to the Form for the Comment Description input value.
+
+```bash
+    <label class="form-label">Comment Description</label>
+    <input type="text" class="form-control" asp-for="CommentDescription" />
+```
+
+We can now finish the ``OnPost()`` method.
+
+```bash
+public async Task<IActionResult> OnPost(string urlHandle)
+{
+    if (signInManager.IsSignedIn(User) && !string.IsNullOrWhiteSpace(CommentDescription))
+    {
+        var userId = userManager.GetUserId(User);
+
+        var comment = new BlogPostComment()
+        {
+            BlogPostId = BlogPostId,
+            Description = CommentDescription,
+            DateAdded = DateTime.Now,
+            UserId = Guid.Parse(userId)
+        };
+
+        await commentRepository.AddComment(comment);
+    }
+
+    return RedirectToPage("BlogPage/Details", new { urlHandle = urlHandle });
+}
+```
+
+The important part here is that we need to passing as a parameter the string ``urlHandle``. This allows us to redirect back to the ``OnGet()`` method so that we can re-get the Blog Post and the Likes values to rebuild the Details page.
+
+This process is a design pattern called ``POST-REDIRECT-GET``(PRG).
+
+The user has to be logged in because we need the ``UserId`` when we post the comments to the database.
+
+**Note:** I made a mistake in this code which compiled but failed in runtime. I had ``BlogPostId = BlogPost.Id`` when ``BlogPost.Id`` didn't exist in the ``OnPost()`` method. I had a 2 way bindable ``BlogPostId`` property that I should have been using instead.
+
+## Displaying the Comments
+
+we need to create a new method in the ``BlogPostCommentRepository`` to get a list of comments for a Blog Post.
+
+```bash
+public async Task<IEnumerable<BlogPostComment>> GetComments(int blogPostId)
+{
+    return await blogDbContext.BlogPostComment.Where(x => x.BlogPostId == blogPostId).ToListAsync();
+}
+```
+
+Now we can use this method in the ``OnGet()`` method of the ``Details.cshtml.cs`` class.
+
+In the ``signInManager.IsSignedIn(User)`` **if** statement we can get the comments.
+
+```bash
+    Comments = await commentRepository.GetComments(BlogPostId);
+```
+
+We need to create a new ``Comments`` List property to use the comments on the ``Details`` Razor page.
+
+We can't use the ``BlogPostComment`` Domain model for this because we need to use the userId to find the user name for display. We can create a new View Model named ``BlogComment``.
+
+```bash
+    public class BlogComment
+    {
+        public string Description { get; set; }
+        public DateTime DateAdded { get; set; }
+        public string Username { get; set; }
+    }
+```
+
+This model uses the ``Username`` instead of the ``UserId`` and allows us to use the name of the person who created the comment.
+
+Create a private method in ``Details.cshtml.cs`` named ``GetComments()``.
+
+```bash
+private async Task GetComments()
+{
+    var blogPostComments = await commentRepository.GetComments(BlogPost.Id);
+
+    var blogCommentsViewModel = new List<BlogComment>();
+
+    foreach (var comment in blogPostComments)
+    {
+        blogCommentsViewModel.Add(new BlogComment
+        {
+            DateAdded = comment.DateAdded,
+            Description = comment.Description,
+            Username = (await userManager.FindByIdAsync(comment.UserId.ToString())).UserName
+        });
+    }
+
+    Comments = blogCommentsViewModel;
+}
+```
+
+This gets the comments from the ``BlogPostComment`` list and adds them to a ``BlogComment`` list.
+
+Now fill in the ``card-body`` Div.
+
+```bash
+<div class="card-body">
+    @if (Model.Comments != null && Model.Comments.Any())
+    {
+        @foreach (var comment in Model.Comments)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div>
+                        @comment.Description
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-secondary">@comment.Username</span>
+                        <span class="text-secondary">@comment.DateAdded.ToShortDateString()</span>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No comments.</p>
+    }
+</div>
+```
+
+In the ``OnGet()`` method add a call to ``GetComments()`` inside the **signInManager** section of the ``if`` block.
+
+```bash
+    if (signInManager.IsSignedIn(User))
+    {
+        var likes = await likeRepository.GetLikesForBlog(BlogPostId);
+
+        var userId = userManager.GetUserId(User);
+
+        Liked = likes.Any(x => x.UserId == Guid.Parse(userId));
+
+        await GetComments();
+    }
+```
+
+This will show a list of Comments if they exist.
+
+Test this out.
+
+![Added comments](assets/images/comments.jpg "Added comments")
+
+If you add a new comment it will resend the page and show the new comment.
+
+## Added notes for Removing the last Migration
+
+When I added the ``Like`` migration I made a mistake with the migration. I wasn't sure on how I could recover from this issue but it turned out to be fairly simple.
+
+In the list of migrations there was a class named similar to this.
+
+> 20240713051234_Add Like domain model.cs
+
+This class was created after I ran the migration and updated the database.
+
+There is another class in this folder named ``BlogDbContextModelSnapshot.cs``.
+
+This class keeps a list of all of the models you have created.
+
+It created an Entity.
+
+```bash
+modelBuilder.Entity("Blog.Models.Domain.Like", b =>
+    {
+        b.Property<int>("Id")
+            .ValueGeneratedOnAdd()
+            .HasColumnType("int");
+
+        SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+        b.Property<int>("BlogPostId")
+            .HasColumnType("int");
+
+        b.Property<Guid>("UserId")
+            .HasColumnType("int");
+
+        b.HasKey("Id");
+
+        b.HasIndex("BlogPostId");
+
+        b.ToTable("BlogPostLike");
+    });
+```
+
+And another Entity.
+
+```bash
+modelBuilder.Entity("Blog.Models.Domain.Like", b =>
+    {
+        b.HasOne("Blog.Models.Domain.BlogPost", null)
+            .WithMany("Likes")
+            .HasForeignKey("BlogPostId")
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+    });
+```
+
+The database Table, ``Like`` was also created after we ran the ``Update-Database`` command.
+
+### Rolling back the last Migration
+
+To gracefully rollback I found that you could delete ``20240713051234_Add Like domain model.cs``.
+
+Also delete the Table ``Like`` in the database.
+
+Now you can run this command to remove the migration.
+
+```bash
+    Remove-Migration -Context BlogDbContext
+```
+
+This will remove the last migration and if you look in ``BlogDbContextModelSnapshot.cs`` you will see that the last 2 Entities that were described above have been removed.
+
+Now you can fix your Model by renaming it to ``BlogPostLike.cs``. Change the fields to what you want.
+
+Make sure to change the ``BlogPost`` Navigation link to.
+
+```bash
+    public ICollection<BlogPostLike> Likes { get; set; }
+```
+
+Change the ``BlogDbContext`` to.
+
+```bash
+    public DbSet<BlogPostComment> BlogPostComment {  get; set; }
+```
+
+Now you are ready to do the revised ``Add-Migration``.
+
+> Add-Migration "Add BlogPostLike domain model." -Context BlogDbContext
+
+Update the database.
+
+> Update-Database -Context BlogDbContext
+
+Now you should see the ``BlogPostLike`` table in the database. Look at your ``BlogDbContextModelSnapshot.cs`` and  you should see the 2 new Entities that you just created.
+
+```bash
+    modelBuilder.Entity("Blog.Models.Domain.BlogPostLike", b =>
+    ...
+```
+
+And.
+
+```bash
+    modelBuilder.Entity("Blog.Models.Domain.BlogPostLike", b =>
+        {
+            b.HasOne("Blog.Models.Domain.BlogPost", null)
+                .WithMany("Likes")
+                .HasForeignKey("BlogPostId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+        });
+```
+
+Now your ``BlogDbContext`` will be working properly.
