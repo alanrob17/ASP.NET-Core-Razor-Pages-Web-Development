@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Admin User functionality</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
+}
+
+h2 {
+	margin-top: 60px;
+}
+
+h4, h3 {
+	padding-top: 40px!;		
+}
+
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
+}
+
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
+
+}
+blockquote {
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
+}
+</style>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">ASP.NET Core Razor Pages Web Development</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Admin User functionality <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
+<h1 id="admin-user-functionality-management">Admin User functionality management</h1>
+<h2 id="display-users-list-all-users">Display Users (list all users)</h2>
+<p>Add a new folder in <code>Admin</code> named <code>Users</code>.</p>
+<p>Add a new Razor page named <code>Index.cshtml</code>. Give the page a header.</p>
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+        &lt;div class=<span class="hljs-string">"container"</span>&gt;
+            &lt;h2&gt;Users&lt;/h2&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+</div></code></pre>
+<p>We want to get a list of all Users. To do this create a new <code>IUserRepository</code> and an implementation.</p>
+<pre class="prettyprint"><code><div>public async Task&lt;IEnumerable&lt;IdentityUser&gt;&gt; <span class="hljs-function"><span class="hljs-title">GetAll</span></span>()
+{
+    var users = await authDbContext.Users.ToListAsync();
+
+    var superAdminUser = await authDbContext.Users.FirstOrDefaultAsync(x =&gt; x.Email == <span class="hljs-string">"superadmin@blog.com"</span>);
+
+    <span class="hljs-keyword">if</span> (superAdminUser != null) 
+    {
+        users.Remove(superAdminUser);
+    }
+
+    <span class="hljs-built_in">return</span> users;
+}
+</div></code></pre>
+<p>We remove the <code>superAdminUser</code> account from our list.</p>
+<p>Inject the service into our application. In <code>Program.cs</code>.</p>
+<pre class="prettyprint"><code><div>    builder.Services.AddScoped&lt;IUserRepository, UserRepository&gt;();
+</div></code></pre>
+<p>Now we can use our method in the <code>OnGet()</code> method in the <code>Index</code> Code Behind class.</p>
+<pre class="prettyprint"><code><div>   public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+   {
+       var users = await userRepository.GetAll();
+   }
+</div></code></pre>
+<p>These <code>users</code> are <code>Identity</code> users so aren't in a format that we can use. To get around this we will create a new  ViewModel named <code>User</code>.</p>
+<pre class="prettyprint"><code><div>   public class User
+   {
+       public Guid Id { get; <span class="hljs-built_in">set</span>; }
+       public string Username { get; <span class="hljs-built_in">set</span>; }
+       public string Email { get; <span class="hljs-built_in">set</span>; }
+   }
+</div></code></pre>
+<p>Create an <code>OnGet()</code> method in the <code>Index.cshtml.cs</code> class.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        var users = await userRepository.GetAll();
+
+        Users = new List&lt;User&gt;();
+
+        foreach (var user <span class="hljs-keyword">in</span> users) 
+        {
+            Users.Add(new Models.ViewModels.<span class="hljs-function"><span class="hljs-title">User</span></span>()
+            {
+                Id = Guid.Parse(user.Id),
+                Username = user.UserName,
+                Email = user.Email
+            });
+        };
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<h3 id="indexcshtml">Index.cshtml</h3>
+<p>Create a basic list table.</p>
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+        &lt;div class=<span class="hljs-string">"container"</span>&gt;
+            &lt;h2&gt;Users&lt;/h2&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div&gt;
+        &lt;div class=<span class="hljs-string">"container"</span>&gt;
+            &lt;table class=<span class="hljs-string">"table"</span>&gt;
+                &lt;thead&gt;
+                    &lt;tr&gt;
+                        &lt;th&gt;Id&lt;/th&gt;
+                        &lt;th&gt;Username&lt;/th&gt;
+                        &lt;th&gt;Email&lt;/th&gt;
+                        &lt;th&gt; &lt;/th&gt;
+                    &lt;/tr&gt;
+                &lt;/thead&gt;
+                &lt;tbody&gt;
+                    @foreach (var user <span class="hljs-keyword">in</span> Model.Users)
+                    {
+                        &lt;tr&gt;
+                            &lt;td&gt;@user.Id&lt;/td&gt;
+                            &lt;td&gt;@user.Username&lt;/td&gt;
+                            &lt;td&gt;@user.Email&lt;/td&gt;
+                            &lt;td&gt;
+                            &lt;/td&gt;
+                        &lt;/tr&gt;
+                    }
+                &lt;/tbody&gt;
+            &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+</div></code></pre>
+<h2 id="create-an-add-user-model-popup-dialog-and-add-user-functionality">Create an Add User Model Popup dialog and Add User Functionality</h2>
+<p>To create a Modal dialog box we will use the Bootstrap Modal form.</p>
+<p><a href="https://getbootstrap.com/docs/5.3/components/modal/">Bootstrap Modal dialog box</a></p>
+<p>Just above the Table add a new Div for an Add User button.</p>
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"mb-3 d-flex justify-content-end"</span>&gt;
+        &lt;!-- Button trigger modal --&gt;
+        &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"button"</span> class=<span class="hljs-string">"btn btn-dark"</span>
+                data-bs-toggle=<span class="hljs-string">"modal"</span> data-bs-target=<span class="hljs-string">"#addUserModal"</span>&gt;
+            Add User
+        &lt;/button&gt;
+    &lt;/div&gt;
+</div></code></pre>
+<p>Our modal form will be added to the bottom of the page.</p>
+<pre class="prettyprint"><code><div>&lt;form method=<span class="hljs-string">"post"</span>&gt;
+    &lt;!-- Modal --&gt;
+    &lt;div class=<span class="hljs-string">"modal fade"</span> id=<span class="hljs-string">"addUserModal"</span> tabindex=<span class="hljs-string">"-1"</span> aria-labelledby=<span class="hljs-string">"exampleModalLabel"</span> aria-hidden=<span class="hljs-string">"true"</span>&gt;
+        &lt;div class=<span class="hljs-string">"modal-dialog"</span>&gt;
+            &lt;div class=<span class="hljs-string">"modal-content"</span>&gt;
+                &lt;div class=<span class="hljs-string">"modal-header"</span>&gt;
+                    &lt;h5 class=<span class="hljs-string">"modal-title"</span> id=<span class="hljs-string">"exampleModalLabel"</span>&gt;Add User&lt;/h5&gt;
+                    &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"button"</span> class=<span class="hljs-string">"btn-close"</span> data-bs-dismiss=<span class="hljs-string">"modal"</span> aria-label=<span class="hljs-string">"Close"</span>&gt;&lt;/button&gt;
+                &lt;/div&gt;
+                &lt;div class=<span class="hljs-string">"modal-body"</span>&gt;
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span>
+                               required /&gt;
+                    &lt;/div&gt;
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Email&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"email"</span> class=<span class="hljs-string">"form-control"</span>
+                               required /&gt;
+                    &lt;/div&gt;
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-control"</span>
+                               required minlength=<span class="hljs-string">"6"</span> /&gt;
+                    &lt;/div&gt;
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+                            &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span>
+                                   value=<span class="hljs-string">"User"</span> checked disabled&gt;
+                            &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckDefault"</span>&gt;
+                                User Role
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+
+                        @<span class="hljs-keyword">if</span> (User.IsInRole(<span class="hljs-string">"SuperAdmin"</span>))
+                        {
+                            &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+                                &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> /&gt;
+                                &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckChecked"</span>&gt;
+                                    Admin Role
+                                &lt;/label&gt;
+                            &lt;/div&gt;
+                        }
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class=<span class="hljs-string">"modal-footer"</span>&gt;
+                    &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"button"</span> class=<span class="hljs-string">"btn btn-secondary"</span> data-bs-dismiss=<span class="hljs-string">"modal"</span>&gt;Close&lt;/button&gt;
+                    &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> class=<span class="hljs-string">"btn btn-dark"</span>&gt;Save changes&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+</div></code></pre>
+<p>Test the page.</p>
+<p><img src="assets/images/add-user-midal-dialog.jpg" alt="Modal dialog box to Add User" title="Modal dialog box to Add User"></p>
+<p>Now we are ready to bind the form fields so that we can add them to the database.</p>
+<p>Go back to the Code Behind class but first we will create a new ViewModel to save the User data.</p>
+<pre class="prettyprint"><code><div>    public class AddUser
+    {
+        public string Username { get; <span class="hljs-built_in">set</span>; }
+
+        public string Email { get; <span class="hljs-built_in">set</span>; }
+
+        public string Password { get; <span class="hljs-built_in">set</span>; }
+
+        public bool AdminCheckbox { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<p>Create a new user property to save the User details. Make it two way binding so we can return values from the Razor page to the Code Behind class.</p>
+<pre class="prettyprint"><code><div>    [BindProperty]
+    public AddUser AddUserRequest { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>Now on the <code>Index</code> page add the <code>asp-for</code> values.</p>
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"modal-body"</span>&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
+        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span>
+               asp-for=<span class="hljs-string">"AddUserRequest.Username"</span> required /&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Email&lt;/label&gt;
+        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"email"</span> class=<span class="hljs-string">"form-control"</span>
+               asp-for=<span class="hljs-string">"AddUserRequest.Email"</span> required /&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-control"</span>
+               asp-for=<span class="hljs-string">"AddUserRequest.Password"</span> required minlength=<span class="hljs-string">"6"</span> /&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+            &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span>
+                   value=<span class="hljs-string">"User"</span> checked disabled asp-for=<span class="hljs-string">"AddUserRequest.AdminCheckbox"</span>&gt;
+            &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckDefault"</span>&gt;
+                User Role
+            &lt;/label&gt;
+        &lt;/div&gt;
+
+        &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+            &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> /&gt;
+            &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckChecked"</span>&gt;
+                Admin Role
+            &lt;/label&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<p>Once we do this we can create a new method in the <code>UserRepository()</code> class.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;bool&gt; AddUser(IdentityUser identityUser, string password, List&lt;string&gt; roles)
+    {
+        var identityResult = await userManager.CreateAsync(identityUser, password);
+
+        <span class="hljs-keyword">if</span> (identityResult.Succeeded) 
+        {
+            identityResult = await userManager.AddToRolesAsync(identityUser, roles);
+
+            <span class="hljs-keyword">if</span> (identityResult.Succeeded)
+            { 
+                <span class="hljs-built_in">return</span> <span class="hljs-literal">true</span>;
+            }
+        }
+
+        <span class="hljs-built_in">return</span> <span class="hljs-literal">false</span>;
+    }
+</div></code></pre>
+<p>Now we can create an <code>OnPost()</code> method in the <code>Index</code> Code Behind class to save the user.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        var identityUser = new IdentityUser 
+        {
+            UserName = AddUserRequest.Username,
+            Email = AddUserRequest.Email
+        };
+    
+        var roles = new List&lt;string&gt; { <span class="hljs-string">"User"</span> };
+    
+        <span class="hljs-keyword">if</span> (AddUserRequest.AdminCheckbox)
+        {
+            roles.Add(<span class="hljs-string">"Admin"</span>);
+        }
+    
+        var result = await userRepository.AddUser(identityUser, AddUserRequest.Password, roles);
+    
+        <span class="hljs-keyword">if</span> (result)
+        {
+            <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Users/Index"</span>);
+        }
+    
+        <span class="hljs-built_in">return</span> Page();
+    } 
+</div></code></pre>
+<p>We are now ready to save a new user into the database.</p>
+<p>Change the Admin navigation in the <code>_Layout.cshtml</code> page.</p>
+<pre class="prettyprint"><code><div>&lt;ul class=<span class="hljs-string">"dropdown-menu"</span>&gt;
+    &lt;li&gt;BLOGS&lt;/li&gt;
+    &lt;li&gt;
+        &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/add"</span>&gt;Add Blog Post&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li&gt;
+        &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/list"</span>&gt;List Blog Posts&lt;/a&gt;
+    &lt;/li&gt;
+    &lt;li&gt;&lt;hr class=<span class="hljs-string">"dropdown-divider"</span>&gt;&lt;/li&gt;
+    &lt;li&gt;USERS&lt;/li&gt;
+    &lt;li&gt;
+        &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/users/index"</span>&gt;Users&lt;/a&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;
+</div></code></pre>
+<p>If we create a new <code>Admin</code> account they will be able to add a new <code>User</code>.</p>
+<p>Create a new <code>Admin</code> account using SuperUserAdmin.</p>
+<p><img src="assets/images/admin-user.jpg" alt="Admin user account" title="Admin user account"></p>
+<p>Now log in as the admin user. This Admin user has the ability to make a new user and make that user an Admin.</p>
+<p>This is not what we want. We have to block the option where the Admin account is able to create an Admin user. Only the SuperAdmin user should be able to do this. We can do this with.</p>
+<pre class="prettyprint"><code><div>@<span class="hljs-keyword">if</span> (User.IsInRole(<span class="hljs-string">"SuperAdmin"</span>))
+{
+    &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+        &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> asp-for=<span class="hljs-string">"AddUserRequest.AdminCheckbox"</span> /&gt;
+        &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckChecked"</span>&gt;
+            Admin Role
+        &lt;/label&gt;
+    &lt;/div&gt;
+}
+</div></code></pre>
+<p>Now the Admin user won't see the Admin CheckBox.</p>
+<h2 id="delete-user-functionality">Delete User functionality</h2>
+<p>In the User table add a button to the end of every User record.</p>
+<pre class="prettyprint"><code><div>    &lt;tbody&gt;
+        @foreach (var user <span class="hljs-keyword">in</span> Model.Users)
+        {
+            &lt;tr&gt;
+                &lt;td&gt;@user.Id&lt;/td&gt;
+                &lt;td&gt;@user.Username&lt;/td&gt;
+                &lt;td&gt;@user.Email&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;a class=<span class="hljs-string">"btn btn-danger user-delete-btn"</span>
+                       data-id=<span class="hljs-string">"@user.Id"</span>&gt;
+                        Delete
+                    &lt;/a&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+        }
+    &lt;/tbody&gt;
+</div></code></pre>
+<p>We will use this button to delete a User record. Now add JavaScript to the bottom of the page to do the deletion.</p>
+<pre class="prettyprint"><code><div>    @section Scripts {
+    &lt;script&gt;
+        const userDeleteElements = document.querySelectorAll(<span class="hljs-string">'.user-delete-btn'</span>);
+    
+        userDeleteElements.forEach((element) =&gt; {
+
+            element.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-title">function</span></span> () {
+                const userId = element.dataset.id;
+
+                console.log(userId);
+            });
+        });
+    &lt;/script&gt;
+</div></code></pre>
+<p>Next we create a new <code>Post()</code> method named <code>OnPostDelete()</code></p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostDelete</span></span>()
+    {
+       <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>Run this and you should see the <code>userId</code> of the User that you are about to delete.</p>
+<p><img src="assets/images/delete-test.jpg" alt="Delete user test" title="Delete user test"></p>
+<p>You can see from the <code>userId</code> that I clicked on the UserName <code>admin</code>. This shows that we are able to capture the current <code>userId</code>.</p>
+<p>We now need to collect the <code>userId</code> and pass it back to the Code Behind class.</p>
+<p>To do this we will have to create another Form around the Table Div.</p>
+<pre class="prettyprint"><code><div>&lt;form method=<span class="hljs-string">"post"</span> asp-page-handler=<span class="hljs-string">"delete"</span> id=<span class="hljs-string">"deleteUserForm"</span>&gt;
+    &lt;table class=<span class="hljs-string">"table"</span>&gt;
+        &lt;thead&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Id&lt;/th&gt;
+                &lt;th&gt;Username&lt;/th&gt;
+                &lt;th&gt;Email&lt;/th&gt;
+                &lt;th&gt; &lt;/th&gt;
+            &lt;/tr&gt;
+        &lt;/thead&gt;
+        &lt;tbody&gt;
+            @foreach (var user <span class="hljs-keyword">in</span> Model.Users)
+            {
+                &lt;tr&gt;
+                    &lt;td&gt;@user.Id&lt;/td&gt;
+                    &lt;td&gt;@user.Username&lt;/td&gt;
+                    &lt;td&gt;@user.Email&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;a class=<span class="hljs-string">"btn btn-danger user-delete-btn"</span>
+                           data-id=<span class="hljs-string">"@user.Id"</span>&gt;
+                            Delete
+                        &lt;/a&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            }
+        &lt;/tbody&gt;
+    &lt;/table&gt;
+    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"hidden"</span> asp-for=<span class="hljs-string">"SelectedUserId"</span> id=<span class="hljs-string">"selectedUserId"</span> /&gt;
+&lt;/form&gt;
+</div></code></pre>
+<p>We also add a hidden input field to grab the <code>selectedUserId</code>.</p>
+<p>In our Code Behind page create a bindable <code>selectedUserId</code> property.</p>
+<pre class="prettyprint"><code><div>    [BindProperty]
+    public Guid SelectedUserId { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>In our JavaScript create another element to grab the <code>selectedUserId</code>.</p>
+<p>In our Form element add the <code>delete</code> handler and id, <code>deleteUserForm</code>.</p>
+<pre class="prettyprint"><code><div>    &lt;form method=<span class="hljs-string">"post"</span> asp-page-handler=<span class="hljs-string">"delete"</span> id=<span class="hljs-string">"deleteUserForm"</span>&gt;
+</div></code></pre>
+<p>Now update the JavaScript to get the <code>selectedUserId</code>  and the <code>deleteUserForm</code> elements.</p>
+<pre class="prettyprint"><code><div>    @section Scripts {
+        &lt;script&gt;
+            const userDeleteElements = document.querySelectorAll(<span class="hljs-string">'.user-delete-btn'</span>);
+            const selectedUserIdElement = document.getElementById(<span class="hljs-string">'selectedUserId'</span>);
+            const deleteUserFormElement = document.getElementById(<span class="hljs-string">'deleteUserForm'</span>);
+
+            userDeleteElements.forEach((element) =&gt; {
+
+                element.addEventListener(<span class="hljs-string">'click'</span>, <span class="hljs-function"><span class="hljs-title">function</span></span> () {
+                    const userId = element.dataset.id;
+
+                    selectedUserIdElement.value = userId;
+                    deleteUserFormElement.submit();
+                });
+            });
+        &lt;/script&gt;
+    }
+</div></code></pre>
+<p>Now that we have the <code>userId</code> we can work on creating a <code>DeleteUser()</code> method in the <code>UserRepository</code> class.</p>
+<pre class="prettyprint"><code><div>    public async Task DeleteUser(Guid userId)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+
+        <span class="hljs-keyword">if</span> (user != null)
+        {
+            await userManager.DeleteAsync(user);
+        }
+    }
+</div></code></pre>
+<p>Use this in the <code>Index</code> Code Behind class.</p>
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostDelete</span></span>()
+    {
+        await userRepository.DeleteUser(SelectedUserId);
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Users/Index"</span>);
+    }
+</div></code></pre>
+<p>You are now able to delete users from the User Index page.</p>
+<p>We are just about finished with the User Admin but there is one other issue that we need to fix.</p>
+<p>Log in as a standard user and navigate to <a href="https://localhost:7100/admin/users/index">the Admin section</a>.</p>
+<p>As a standard user you can see this page and we need to stop that.</p>
+<p>In the Index Code Behind class add the <code>Authorize</code> attribute.</p>
+<pre class="prettyprint"><code><div>    namespace Blog.Pages.Admin.Users
+    {
+        [Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
+        public class IndexModel : PageModel
+        {
+            ...
+</div></code></pre>
+<p>Restart the page and navigate to the Admin section. You should get this message.</p>
+<p><img src="assets/images/blocked-access.jpg" alt="Standard user - access denied" title="Standard user - access denied"></p>
+<h2 id="edit-a-user-record">Edit a User record</h2>
+<p>I want to be able to edit a Users details and the only way you can do this using Identity is to delete the original record and create a new User record. This is because the database stores the password as a password hash value and we can't see or change this field.</p>
+<h3 id="editcshtml">Edit.cshtml</h3>
+<pre class="prettyprint"><code><div>@page <span class="hljs-string">"{id?}"</span>
+@model Blog.Pages.Admin.Users.EditModel
+@{
+}
+
+&lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;h1&gt;Edit User&lt;/h1&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+@<span class="hljs-keyword">if</span> (Model.EditUserRequest != null)
+{
+    &lt;div&gt;
+        &lt;div class=<span class="hljs-string">"container"</span>&gt;
+            &lt;form method=<span class="hljs-string">"post"</span>&gt;
+
+                &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                    &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"userName"</span> class=<span class="hljs-string">"form-label"</span>&gt;User name&lt;/label&gt;
+                    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"userName"</span> asp-for=<span class="hljs-string">"EditUserRequest.Username"</span>&gt;
+                &lt;/div&gt;
+
+                &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                    &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+                    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"password"</span> asp-for=<span class="hljs-string">"EditUserRequest.Password"</span>&gt;
+                &lt;/div&gt;
+
+                &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                    &lt;label <span class="hljs-keyword">for</span>=<span class="hljs-string">"email"</span> class=<span class="hljs-string">"form-label"</span>&gt;Email&lt;/label&gt;
+                    &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> id=<span class="hljs-string">"email"</span> asp-for=<span class="hljs-string">"EditUserRequest.Email"</span>&gt;
+                &lt;/div&gt;
+
+                &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                    &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+                        &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span>
+                               value=<span class="hljs-string">"User"</span> checked disabled asp-for=<span class="hljs-string">"EditUserRequest.AdminCheckbox"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckDefault"</span>&gt;
+                            User Role
+                        &lt;/label&gt;
+                    &lt;/div&gt;
+
+                    @<span class="hljs-keyword">if</span> (User.IsInRole(<span class="hljs-string">"SuperAdmin"</span>))
+                    {
+                        &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+                            &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> asp-for=<span class="hljs-string">"EditUserRequest.AdminCheckbox"</span> /&gt;
+                            &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckChecked"</span>&gt;
+                                Admin Role
+                            &lt;/label&gt;
+                        &lt;/div&gt;
+                    }
+                &lt;/div&gt;
+
+                &lt;div class=<span class="hljs-string">"mb-3 d-flex justify-content-between"</span>&gt;
+                    &lt;button class=<span class="hljs-string">"btn btn-primary"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> asp-page-handler=<span class="hljs-string">"Edit"</span>&gt;Submit&lt;/button&gt;
+                    &lt;td&gt;&lt;a href=<span class="hljs-string">"/Admin/Users/Index"</span> class=<span class="hljs-string">"btn btn-secondary"</span>&gt;Users&lt;/a&gt;&lt;/td&gt;
+                &lt;/div&gt;
+                &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"hidden"</span> asp-for=<span class="hljs-string">"SelectedUserId"</span> id=<span class="hljs-string">"selectedUserId"</span> /&gt;
+            &lt;/form&gt;
+        &lt;/div&gt;
+
+        &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;&lt;/partial&gt;
+    &lt;/div&gt;
+}
+<span class="hljs-keyword">else</span>
+{
+    &lt;div class=<span class="hljs-string">"container"</span>&gt;
+        &lt;p&gt;User Not Found!&lt;/p&gt;
+    &lt;/div&gt;
+}
+</div></code></pre>
+<p>I use the <code>Notification</code> to alert the administrator that they need to fill in all fields.</p>
+<h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
+<pre class="prettyprint"><code><div>[Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
+public class EditModel : PageModel
+{
+    private <span class="hljs-built_in">readonly</span> IUserRepository userRepository;
+
+    public EditModel(IUserRepository userRepository)
+    {
+        this.userRepository = userRepository;
+    }
+
+    [BindProperty]
+    public EditUser EditUserRequest { get; <span class="hljs-built_in">set</span>; }
+
+    [BindProperty]
+    public string SelectedUserId { get; <span class="hljs-built_in">set</span>; }
+
+    public async Task&lt;IActionResult&gt; OnGet(string? id)
+    {
+        ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+        {
+            Type = Enums.NotificationType.Success,
+            Message = <span class="hljs-string">"&lt;strong&gt;Please note:&lt;/strong&gt; you must update all fields."</span>
+        };
+
+        EditUserRequest = await userRepository.GetUser(id);
+        SelectedUserId = EditUserRequest.Id;
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+
+    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostAsync</span></span>()
+    {
+        <span class="hljs-keyword">if</span> (!string.IsNullOrWhiteSpace(EditUserRequest.Password))
+        {
+            // create a new user
+            Guid userId;
+            <span class="hljs-keyword">if</span> (Guid.TryParse(SelectedUserId, out userId))
+            {
+                await userRepository.DeleteUser(userId);
+                SelectedUserId = null;
+
+                var identityUser = new IdentityUser
+                {
+                    UserName = EditUserRequest.Username,
+                    Email = EditUserRequest.Email
+                };
+
+                var roles = new List&lt;string&gt; { <span class="hljs-string">"User"</span> };
+
+                <span class="hljs-keyword">if</span> (EditUserRequest.AdminCheckbox)
+                {
+                    roles.Add(<span class="hljs-string">"Admin"</span>);
+                }
+
+                var result = await userRepository.AddUser(identityUser, EditUserRequest.Password, roles);
+            }
+        }
+
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/users/Index"</span>);
+    }
+}
+</div></code></pre>
+
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+</body>
+</html>
