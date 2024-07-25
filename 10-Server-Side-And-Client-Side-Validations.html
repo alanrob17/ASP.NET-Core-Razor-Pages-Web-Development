@@ -511,6 +511,321 @@ code {
 </div></code></pre>
 <p>I now run the Form with valid <code>Username</code> and <code>Email</code> fields. Add 3 characters into the <code>Password</code> field.</p>
 <p><img src="assets/images/minimum-length-password.jpg" alt="Minimum length error" title="Minimum length error"></p>
+<p>Using these attributes says that we have finished our Client side validation.</p>
+<h2 id="validating-the-login-page">Validating the Login page</h2>
+<h3 id="server-side">Server side</h3>
+<p>Work on the Server side first to provide Server validation.</p>
+<p>Add validation to the ViewModel.</p>
+<pre class="hljs"><code><div>    public class Login
+    {
+        [Required]
+        public string Username { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<p>Now add a validation check to the <code>OnPost()</code> method.</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; OnPost(string ReturnUrl)
+    {
+        <span class="hljs-keyword">if</span> (ModelState.IsValid)
+        {
+            var signInResult = await signInManager.PasswordSignInAsync(
+            LoginViewModel.Username, LoginViewModel.Password, <span class="hljs-literal">false</span>, <span class="hljs-literal">false</span>);
+
+            <span class="hljs-keyword">if</span> (signInResult.Succeeded)
+            {
+                <span class="hljs-keyword">if</span> (!string.IsNullOrWhiteSpace(ReturnUrl))
+                {
+                    <span class="hljs-built_in">return</span> RedirectToPage(ReturnUrl);
+                }
+
+                <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"Index"</span>);
+            }
+            <span class="hljs-keyword">else</span>
+            {
+                ViewData[<span class="hljs-string">"Notification"</span>] = new Notification
+                {
+                    Type = Enums.NotificationType.Error,
+                    Message = <span class="hljs-string">"Unable to login"</span>
+                };
+
+                <span class="hljs-built_in">return</span> Page();
+            }
+        }
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<h3 id="client-side">Client side</h3>
+<p>Add validation to the <code>Login</code> Razor page.</p>
+<p>We add the <code>required</code> attributes to the <code>Username</code> and <code>Password</code> fields.</p>
+<p>We also add the <code>minlength</code> attribute to the <code>password</code> field.</p>
+<p>We then add span elements to the fields to add validation messages.</p>
+<pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"container mx-auto"</span>&gt;
+    &lt;div class=<span class="hljs-string">"row justify-content-center"</span>&gt;
+        &lt;div class=<span class="hljs-string">"col-12 col-lg-6"</span>&gt;
+
+            &lt;h1 class=<span class="hljs-string">"mt-5 mb-3 h3"</span>&gt;Login&lt;/h1&gt;
+
+            &lt;partial name=<span class="hljs-string">"_Notification"</span>&gt;
+
+                &lt;form method=<span class="hljs-string">"post"</span>&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"LoginViewModel.Username"</span> required /&gt;
+                        &lt;span class=<span class="hljs-string">"text-danger"</span> asp-validation-for=<span class="hljs-string">"LoginViewModel.Username"</span>&gt;&lt;/span&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+                        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"LoginViewModel.Password"</span> required minlength=<span class="hljs-string">"6"</span> /&gt;
+                        &lt;span class=<span class="hljs-string">"text-danger"</span> asp-validation-for=<span class="hljs-string">"LoginViewModel.Password"</span>&gt;&lt;/span&gt;
+                    &lt;/div&gt;
+
+                    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+                        &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"submit"</span> class=<span class="hljs-string">"btn bg-dark text-light"</span>&gt;Login&lt;/button&gt;
+                    &lt;/div&gt;
+
+                &lt;/form&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+</div></code></pre>
+<p>Now test the validation. It fails.</p>
+<p>There is one more thing that needs to be fixed here. Look at the <code>OnPost()</code> method above.</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; OnPost(string ReturnUrl)
+    {
+        ...
+</div></code></pre>
+<p>The parameter is expecting the <code>ReturnUrl</code> variable and it was a <strong>null value</strong>.</p>
+<p><img src="assets/images/null-value.jpg" alt="Null value error" title="Null value error"></p>
+<p>We can easily fix this by make <code>ReturnUrl</code> nullable. Add a <strong>?</strong> after the variable type.</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; OnPost(string? ReturnUrl)
+    {
+        ...
+</div></code></pre>
+<h2 id="validating-the-admin-add-user-page">Validating the Admin Add User page</h2>
+<h3 id="server-side">Server side</h3>
+<p>Add validation to the ViewModel.</p>
+<pre class="hljs"><code><div>    public class AddUser
+    {
+        [Required]
+        public string Username { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        public string Email { get; <span class="hljs-built_in">set</span>; }
+
+        [Required]
+        [MinLength(6)]
+        public string Password { get; <span class="hljs-built_in">set</span>; }
+
+        public bool AdminCheckbox { get; <span class="hljs-built_in">set</span>; }
+    }
+</div></code></pre>
+<p>Add ModelState to the Admin/Users <code>Index</code> page <code>OnPost()</code> method.</p>
+<pre class="hljs"><code><div>public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+{
+    <span class="hljs-keyword">if</span> (ModelState.IsValid)
+    {
+        var identityUser = new IdentityUser
+        {
+            UserName = AddUserRequest.Username,
+            Email = AddUserRequest.Email
+        };
+
+        var roles = new List&lt;string&gt; { <span class="hljs-string">"User"</span> };
+
+        <span class="hljs-keyword">if</span> (AddUserRequest.AdminCheckbox)
+        {
+            roles.Add(<span class="hljs-string">"Admin"</span>);
+        }
+
+        var result = await userRepository.AddUser(identityUser, AddUserRequest.Password, roles);
+
+        <span class="hljs-keyword">if</span> (result)
+        {
+            <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Users/Index"</span>);
+        }
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+
+    <span class="hljs-built_in">return</span> Page();
+}
+</div></code></pre>
+<h3 id="client-side">Client side</h3>
+<p>We add validation to the 3 Identity fields in the <code>Index</code> Razor page.</p>
+<pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"modal-body"</span>&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
+        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"AddUserRequest.Username"</span> required /&gt;
+        &lt;span class=<span class="hljs-string">"text-danger"</span> asp-validation-for=<span class="hljs-string">"AddUserRequest.Username"</span>&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Email&lt;/label&gt;
+        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"email"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"AddUserRequest.Email"</span> required /&gt;
+        &lt;span class=<span class="hljs-string">"text-danger"</span> asp-validation-for=<span class="hljs-string">"AddUserRequest.Email"</span>&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Password&lt;/label&gt;
+        &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"password"</span> class=<span class="hljs-string">"form-control"</span> asp-for=<span class="hljs-string">"AddUserRequest.Password"</span> required minlength=<span class="hljs-string">"6"</span> /&gt;
+        &lt;span class=<span class="hljs-string">"text-danger"</span> asp-validation-for=<span class="hljs-string">"AddUserRequest.Password"</span>&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
+        &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
+            &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span>
+                   value=<span class="hljs-string">"User"</span> checked disabled asp-for=<span class="hljs-string">"AddUserRequest.AdminCheckbox"</span>&gt;
+            &lt;label class=<span class="hljs-string">"form-check-label"</span> <span class="hljs-keyword">for</span>=<span class="hljs-string">"flexCheckDefault"</span>&gt;
+                User Role
+            &lt;/label&gt;
+        &lt;/div&gt;
+    ...
+</div></code></pre>
+<h3 id="exception-error">Exception error</h3>
+<p>Add a new User and we get an error message.</p>
+<p><img src="assets/images/null-reference-exception.jpg" alt="Null reference exception" title="Null reference exception"></p>
+<p>This is cause because we have returned to the Razor page for display without getting the list of Users.</p>
+<p>We need to run the <code>OnGet()</code> method to get a list of all Users. We need to refactor our <code>OnGet()</code> method.</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+    {
+        await GetUsers();
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>We move the User code to a new method named <code>GetUsers()</code>.</p>
+<pre class="hljs"><code><div>    private async Task <span class="hljs-function"><span class="hljs-title">GetUsers</span></span>()
+    {
+        var users = await userRepository.GetAll();
+
+        Users = new List&lt;User&gt;();
+
+        foreach (var user <span class="hljs-keyword">in</span> users)
+        {
+            Users.Add(new Models.ViewModels.<span class="hljs-function"><span class="hljs-title">User</span></span>()
+            {
+                Id = Guid.Parse(user.Id),
+                Username = user.UserName,
+                Email = user.Email
+            });
+        };
+    }
+</div></code></pre>
+<p>Now in the <code>OnPost()</code> method we can also use the new method, <code>GetUsers()</code>.</p>
+<pre class="hljs"><code><div>            ...
+            <span class="hljs-built_in">return</span> Page();
+        }
+
+        await GetUsers();
+
+        <span class="hljs-built_in">return</span> Page();
+    }
+</div></code></pre>
+<p>This will fix our exception and allow us to add a new User.</p>
+<h2 id="fix-error-on-blogpost-where-a-user-has-been-deleted">Fix error on BlogPost where a User has been deleted</h2>
+<p>I have noticed that when I went to view a Blog Post it failed. On investigation I found that I had deleted a <code>User</code> that had posted comments to this particular Blog Post. Because there was no <code>Username</code> on a comment it cause an exception.</p>
+<p>Looking in the database I realised that the <code>UserId</code> in the <code>BlogPostComment</code> table still had comments by that <code>UserId</code>. I have written some code to get around the <code>User</code> not existing in the database anymore.</p>
+<h3 id="detailscshtmlcs">Details.cshtml.cs</h3>
+<pre class="hljs"><code><div>    private async Task <span class="hljs-function"><span class="hljs-title">GetComments</span></span>()
+    {
+        var blogPostComments = await commentRepository.GetComments(BlogPost.Id);
+
+        var blogCommentsViewModel = new List&lt;BlogComment&gt;();
+
+        foreach (var comment <span class="hljs-keyword">in</span> blogPostComments)
+        {
+            var user = await userManager.FindByIdAsync(comment.UserId.ToString());
+            var userName = user?.UserName ?? string.Empty;
+
+            blogCommentsViewModel.Add(new BlogComment
+            {
+                DateAdded = comment.DateAdded,
+                Description = comment.Description,
+                Username = userName
+            });
+        }
+
+        Comments = blogCommentsViewModel;
+    }
+</div></code></pre>
+<p>We now check to see if the <code>user</code> exists. If they don't I make the <code>Username = string.Empty</code>.</p>
+<p><img src="assets/images/comment-section-with-missing-username.jpg" alt="Missing Username" title="Missing Username"></p>
+<p>Note that the second comment doesn't have a <code>Username</code>.</p>
+<h2 id="adding-validations-to-our-add-blog-post-page">Adding validations to our Add Blog Post page</h2>
+<p>Look in the <code>Add</code> Code Behind class and you will notice we are using the <code>AddBlogPost</code> ViewModel. Go to that model.</p>
+<p>We will change each property to have the <code>Required</code> attribute except the <code>Visible</code> boolean property.</p>
+<p>When the Form is submitted we use the <code>OnPost()</code> method. Add a ModelState <code>if</code> block around the code.</p>
+<pre class="hljs"><code><div>public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+{
+    <span class="hljs-keyword">if</span> (ModelState.IsValid)
+    {
+        var blogPost = new <span class="hljs-function"><span class="hljs-title">BlogPost</span></span>()
+        {
+            Heading = AddBlogPostRequest.Heading,
+            PageTitle = AddBlogPostRequest.PageTitle,
+            Content = AddBlogPostRequest.Content,
+            ShortDescription = AddBlogPostRequest.ShortDescription,
+            FeaturedImageUrl = AddBlogPostRequest.FeaturedImageUrl,
+            UrlHandle = AddBlogPostRequest.UrlHandle,
+            PublishedDate = AddBlogPostRequest.PublishedDate,
+            Author = AddBlogPostRequest.Author,
+            Visible = AddBlogPostRequest.Visible,
+            Tags = new List&lt;Tag&gt;(Tags.Split(<span class="hljs-string">','</span>).Select(x =&gt; new <span class="hljs-function"><span class="hljs-title">Tag</span></span>() { Name = x.Trim() }))
+        };
+
+        var result = await blogPostRepository.AddAsync(blogPost);
+
+        var notification = new Notification
+        {
+            Type = Enums.NotificationType.Success,
+            Message = $<span class="hljs-string">"A new Post with the Title: \"{result.PageTitle}\" has been created!"</span>
+        };
+
+        TempData[<span class="hljs-string">"Notification"</span>] = JsonSerializer.Serialize(notification);
+
+        <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Blogs/List"</span>);
+    }
+
+    <span class="hljs-built_in">return</span> Page();
+}
+</div></code></pre>
+<p>We also have a List of <code>Tags</code> that need to have the <code>Required</code> attribute.</p>
+<pre class="hljs"><code><div>    [BindProperty]
+    [Required]
+    public string Tags { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>Now open the <code>Add.cshtml</code> Razor page. We will add a <code>span</code> element containing the validation helpers on our <code>Required</code> fields.</p>
+<p>Example.</p>
+<pre class="hljs"><code><div>    &lt;span class=<span class="hljs-string">"text-danger"</span> asp-validation-for=<span class="hljs-string">"AddBlogPostRequest.Heading"</span>&gt;&lt;/span&gt;
+</div></code></pre>
+<p>Now log in as superAdmin and try and submit a new Blog Post with no information. You will get an <em>add information</em> message in your fields.</p>
+<h3 id="adding-your-own-business-validations">Adding your own business validations</h3>
+<p>For example, the <code>PublishedDate</code> must be the current date or a future date, not a previous date.</p>
+<p>We will create a private method to add our business validations.</p>
+<pre class="hljs"><code><div>    private void <span class="hljs-function"><span class="hljs-title">ValidateBlogPost</span></span>()
+    {
+        <span class="hljs-keyword">if</span> (AddBlogPostRequest.PublishedDate.Date &lt; DateTime.Now.Date)
+        {
+            ModelState.AddModelError(<span class="hljs-string">"AddBlogPostRequest.PublishedDate"</span>,
+                $<span class="hljs-string">"PublishedDate can only be today's date or a future date."</span>);
+        }
+    }
+</div></code></pre>
+<p>Add it before the ModelState <code>if</code> block in our OnPost() method.</p>
+<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+    {
+        ValidateBlogPost();
+
+        <span class="hljs-keyword">if</span> (ModelState.IsValid)
+        {
+            var blogPost = new BlogPost()
+            ...
+</div></code></pre>
+<p>Now try and add a Blog Post with a previous date value.</p>
+<p><img src="assets/images/publish-date-error-message.jpg" alt="Business validation error" title="Business validation error"></p>
 
 </body>
 </html>
