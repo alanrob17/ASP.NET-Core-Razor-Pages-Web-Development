@@ -142,7 +142,7 @@ We can add Server side validation in the Model.
     public string Email { get; set; }
 ```
 
-If we put the wrong data in the ``Email`` field we will get this error.
+If we put the wrong data in the ``Email`` field we will get the error above.
 
 We also have a size limit on the number of characters in our ``Password`` field. In the ``Program.cs`` file we have already set some limits.
 
@@ -167,7 +167,7 @@ We can also add an annotation to force a minimum Password length in the Model.
 
 With these annotations we have validated our fields on the Server side.
 
-## Client side validations for he Register page
+## Client side validations for the Register page
 
 It is important to add the Server side validation **before** you add the Client side validation.
 
@@ -307,11 +307,11 @@ There is one more thing that needs to be fixed here. Look at the ``OnPost()`` me
         ...
 ```
 
-The parameter is expecting the ``ReturnUrl`` variable and it was a **null value**.
+The parameter is expecting the ``ReturnUrl`` variable and we returned a **null value**.
 
 ![Null value error](assets/images/null-value.jpg "Null value error")
 
-We can easily fix this by make ``ReturnUrl`` nullable. Add a **?** after the variable type.
+We can easily fix this by making ``ReturnUrl`` nullable. Add a **?** after the variable type.
 
 ```bash
     public async Task<IActionResult> OnPost(string? ReturnUrl)
@@ -414,9 +414,9 @@ Add a new User and we get an error message.
 
 ![Null reference exception](assets/images/null-reference-exception.jpg "Null reference exception")
 
-This is cause because we have returned to the Razor page for display without getting the list of Users.
+This is caused because we have returned to the Razor page for display without getting the list of Users.
 
-We need to run the ``OnGet()`` method to get a list of all Users. We need to refactor our ``OnGet()`` method.
+We need to run the ``OnGet()`` method to get a list of all Users after we add the new User. We need to abstract out our ``OnGet()`` method to a new method so that we can use it more than once.
 
 ```bash
     public async Task<IActionResult> OnGet()
@@ -465,7 +465,7 @@ This will fix our exception and allow us to add a new User.
 
 ## Fix error on BlogPost where a User has been deleted
 
-I have noticed that when I went to view a Blog Post it failed. On investigation I found that I had deleted a ``User`` that had posted comments to this particular Blog Post. Because there was no ``Username`` on a comment it cause an exception.
+I have noticed that when I went to view a Blog Post it failed. On investigation I found that I had deleted a ``User`` that had posted comments to this particular Blog Post. Because there was no ``Username`` on a comment it caused an exception.
 
 Looking in the database I realised that the ``UserId`` in the ``BlogPostComment`` table still had comments by that ``UserId``. I have written some code to get around the ``User`` not existing in the database anymore.
 
@@ -553,7 +553,7 @@ We also have a List of ``Tags`` that need to have the ``Required`` attribute.
     public string Tags { get; set; }
 ```
 
-Now open the ``Add.cshtml`` Razor page. We will add a ``span`` element containing the validation helpers on our ``Required`` fields.
+Now open the ``Add.cshtml`` Razor page. We will add a ``span`` element containing the validation helpers and add the ``required`` attribute to fields that need it.
 
 Example.
 
@@ -656,7 +656,7 @@ If you look at the ``Edit.cshtml.cs`` class you will see that we are using the `
     }
 ```
 
-Now we have to change the ``Edit.cshtml.cs class``. First change the ``BlogPost`` Domain model property to the ViewModel, ``EditBlogPost``.
+Now we have to change the ``Edit.cshtml.cs`` class. First change the ``BlogPost`` Domain model property to the ViewModel, ``EditBlogPost``.
 
 ```bash
     [BindProperty]
@@ -699,7 +699,7 @@ public async Task OnGet(int id)
 
 Because we have left the ViewModel name as ``BlogPost`` means that we don't have to do any changes in the ``Edit.cshtml`` Razor page.
 
-Now run the application to see if you can open the ``Edit.cshtml`` Razor page. When you update a record it should work. We are now using a View Model instead of a Domain Model which the the better practice.
+Now run the application to see if you can open the ``Edit.cshtml`` Razor page. When you update a record it should work. We are now using a View Model instead of a Domain Model which is best practice.
 
 We are now at the stage of adding validation. Because we are using View Models we have to add the attributes. When we are using Domain Models the attributes aren't required.
 
@@ -739,7 +739,7 @@ We are now at the stage of adding validation. Because we are using View Models w
 
 Now add the ``ModelState`` block to your ``OnPostEdit()`` method.
 
-On the Edit.cshtml page add the validation span elements to each field. E.g.
+On the ``Edit.cshtml`` page add the validation span elements to each field. E.g.
 
 ```bash
     <span class="text-danger" asp-validation-for="BlogPost.Id"></span>
@@ -899,3 +899,11 @@ We can fix this by shifting the ViewData ``Title`` inside the ``Model.BlogPost``
                     }
                     ...
  ```
+
+Make sure that the ``@if`` block for ``Model.BlogPost != null`` encloses all of our ``Divs`` and the ``JavaScript`` code.
+
+If there is no BlogPost returned we want to hit the ``else`` statement and return the message *Blog post not found!*.
+
+Test this code with an invalid BlogPost.
+
+![Invalid Blog Post](assets/images/invalid-post.jpg "Invalid Blog Post")

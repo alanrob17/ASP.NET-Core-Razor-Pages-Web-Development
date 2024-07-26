@@ -369,14 +369,14 @@ code {
 <h2 id="display-users-list-all-users">Display Users (list all users)</h2>
 <p>Add a new folder in <code>Admin</code> named <code>Users</code>.</p>
 <p>Add a new Razor page named <code>Index.cshtml</code>. Give the page a header.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
         &lt;div class=<span class="hljs-string">"container"</span>&gt;
             &lt;h2&gt;Users&lt;/h2&gt;
         &lt;/div&gt;
     &lt;/div&gt;
 </div></code></pre>
 <p>We want to get a list of all Users. To do this create a new <code>IUserRepository</code> and an implementation.</p>
-<pre class="hljs"><code><div>public async Task&lt;IEnumerable&lt;IdentityUser&gt;&gt; <span class="hljs-function"><span class="hljs-title">GetAll</span></span>()
+<pre class="prettyprint"><code><div>public async Task&lt;IEnumerable&lt;IdentityUser&gt;&gt; <span class="hljs-function"><span class="hljs-title">GetAll</span></span>()
 {
     var users = await authDbContext.Users.ToListAsync();
 
@@ -392,16 +392,16 @@ code {
 </div></code></pre>
 <p>We remove the <code>superAdminUser</code> account from our list.</p>
 <p>Inject the service into our application. In <code>Program.cs</code>.</p>
-<pre class="hljs"><code><div>    builder.Services.AddScoped&lt;IUserRepository, UserRepository&gt;();
+<pre class="prettyprint"><code><div>    builder.Services.AddScoped&lt;IUserRepository, UserRepository&gt;();
 </div></code></pre>
 <p>Now we can use our method in the <code>OnGet()</code> method in the <code>Index</code> Code Behind class.</p>
-<pre class="hljs"><code><div>   public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+<pre class="prettyprint"><code><div>   public async Task <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
    {
        var users = await userRepository.GetAll();
    }
 </div></code></pre>
 <p>These <code>users</code> are <code>Identity</code> users so aren't in a format that we can use. To get around this we will create a new  ViewModel named <code>User</code>.</p>
-<pre class="hljs"><code><div>   public class User
+<pre class="prettyprint"><code><div>   public class User
    {
        public Guid Id { get; <span class="hljs-built_in">set</span>; }
        public string Username { get; <span class="hljs-built_in">set</span>; }
@@ -409,7 +409,7 @@ code {
    }
 </div></code></pre>
 <p>Create an <code>OnGet()</code> method in the <code>Index.cshtml.cs</code> class.</p>
-<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnGet</span></span>()
     {
         var users = await userRepository.GetAll();
 
@@ -430,7 +430,7 @@ code {
 </div></code></pre>
 <h3 id="indexcshtml">Index.cshtml</h3>
 <p>Create a basic list table.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"bg-secondary bg-opacity-10 py-2 mb-5"</span>&gt;
         &lt;div class=<span class="hljs-string">"container"</span>&gt;
             &lt;h2&gt;Users&lt;/h2&gt;
         &lt;/div&gt;
@@ -467,7 +467,7 @@ code {
 <p>To create a Modal dialog box we will use the Bootstrap Modal form.</p>
 <p><a href="https://getbootstrap.com/docs/5.3/components/modal/">Bootstrap Modal dialog box</a></p>
 <p>Just above the Table add a new Div for an Add User button.</p>
-<pre class="hljs"><code><div>    &lt;div class=<span class="hljs-string">"mb-3 d-flex justify-content-end"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;div class=<span class="hljs-string">"mb-3 d-flex justify-content-end"</span>&gt;
         &lt;!-- Button trigger modal --&gt;
         &lt;button <span class="hljs-built_in">type</span>=<span class="hljs-string">"button"</span> class=<span class="hljs-string">"btn btn-dark"</span>
                 data-bs-toggle=<span class="hljs-string">"modal"</span> data-bs-target=<span class="hljs-string">"#addUserModal"</span>&gt;
@@ -476,7 +476,7 @@ code {
     &lt;/div&gt;
 </div></code></pre>
 <p>Our modal form will be added to the bottom of the page.</p>
-<pre class="hljs"><code><div>&lt;form method=<span class="hljs-string">"post"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;form method=<span class="hljs-string">"post"</span>&gt;
     &lt;!-- Modal --&gt;
     &lt;div class=<span class="hljs-string">"modal fade"</span> id=<span class="hljs-string">"addUserModal"</span> tabindex=<span class="hljs-string">"-1"</span> aria-labelledby=<span class="hljs-string">"exampleModalLabel"</span> aria-hidden=<span class="hljs-string">"true"</span>&gt;
         &lt;div class=<span class="hljs-string">"modal-dialog"</span>&gt;
@@ -534,7 +534,7 @@ code {
 <p><img src="assets/images/add-user-midal-dialog.jpg" alt="Modal dialog box to Add User" title="Modal dialog box to Add User"></p>
 <p>Now we are ready to bind the form fields so that we can add them to the database.</p>
 <p>Go back to the Code Behind class but first we will create a new ViewModel to save the User data.</p>
-<pre class="hljs"><code><div>    public class AddUser
+<pre class="prettyprint"><code><div>    public class AddUser
     {
         public string Username { get; <span class="hljs-built_in">set</span>; }
 
@@ -546,11 +546,11 @@ code {
     }
 </div></code></pre>
 <p>Create a new user property to save the User details. Make it two way binding so we can return values from the Razor page to the Code Behind class.</p>
-<pre class="hljs"><code><div>    [BindProperty]
+<pre class="prettyprint"><code><div>    [BindProperty]
     public AddUser AddUserRequest { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>Now on the <code>Index</code> page add the <code>asp-for</code> values.</p>
-<pre class="hljs"><code><div>&lt;div class=<span class="hljs-string">"modal-body"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;div class=<span class="hljs-string">"modal-body"</span>&gt;
     &lt;div class=<span class="hljs-string">"mb-3"</span>&gt;
         &lt;label class=<span class="hljs-string">"form-label"</span>&gt;Username&lt;/label&gt;
         &lt;input <span class="hljs-built_in">type</span>=<span class="hljs-string">"text"</span> class=<span class="hljs-string">"form-control"</span>
@@ -585,7 +585,7 @@ code {
 &lt;/div&gt;
 </div></code></pre>
 <p>Once we do this we can create a new method in the <code>UserRepository()</code> class.</p>
-<pre class="hljs"><code><div>    public async Task&lt;bool&gt; AddUser(IdentityUser identityUser, string password, List&lt;string&gt; roles)
+<pre class="prettyprint"><code><div>    public async Task&lt;bool&gt; AddUser(IdentityUser identityUser, string password, List&lt;string&gt; roles)
     {
         var identityResult = await userManager.CreateAsync(identityUser, password);
 
@@ -603,7 +603,7 @@ code {
     }
 </div></code></pre>
 <p>Now we can create an <code>OnPost()</code> method in the <code>Index</code> Code Behind class to save the user.</p>
-<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPost</span></span>()
     {
         var identityUser = new IdentityUser 
         {
@@ -630,7 +630,7 @@ code {
 </div></code></pre>
 <p>We are now ready to save a new user into the database.</p>
 <p>Change the Admin navigation in the <code>_Layout.cshtml</code> page.</p>
-<pre class="hljs"><code><div>&lt;ul class=<span class="hljs-string">"dropdown-menu"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;ul class=<span class="hljs-string">"dropdown-menu"</span>&gt;
     &lt;li&gt;BLOGS&lt;/li&gt;
     &lt;li&gt;
         &lt;a class=<span class="hljs-string">"dropdown-item"</span> href=<span class="hljs-string">"/admin/blogs/add"</span>&gt;Add Blog Post&lt;/a&gt;
@@ -650,7 +650,7 @@ code {
 <p><img src="assets/images/admin-user.jpg" alt="Admin user account" title="Admin user account"></p>
 <p>Now log in as the admin user. This Admin user has the ability to make a new user and make that user an Admin.</p>
 <p>This is not what we want. We have to block the option where the Admin account is able to create an Admin user. Only the SuperAdmin user should be able to do this. We can do this with.</p>
-<pre class="hljs"><code><div>@<span class="hljs-keyword">if</span> (User.IsInRole(<span class="hljs-string">"SuperAdmin"</span>))
+<pre class="prettyprint"><code><div>@<span class="hljs-keyword">if</span> (User.IsInRole(<span class="hljs-string">"SuperAdmin"</span>))
 {
     &lt;div class=<span class="hljs-string">"form-check"</span>&gt;
         &lt;input class=<span class="hljs-string">"form-check-input"</span> <span class="hljs-built_in">type</span>=<span class="hljs-string">"checkbox"</span> asp-for=<span class="hljs-string">"AddUserRequest.AdminCheckbox"</span> /&gt;
@@ -663,7 +663,7 @@ code {
 <p>Now the Admin user won't see the Admin CheckBox.</p>
 <h2 id="delete-user-functionality">Delete User functionality</h2>
 <p>In the User table add a button to the end of every User record.</p>
-<pre class="hljs"><code><div>    &lt;tbody&gt;
+<pre class="prettyprint"><code><div>    &lt;tbody&gt;
         @foreach (var user <span class="hljs-keyword">in</span> Model.Users)
         {
             &lt;tr&gt;
@@ -681,7 +681,7 @@ code {
     &lt;/tbody&gt;
 </div></code></pre>
 <p>We will use this button to delete a User record. Now add JavaScript to the bottom of the page to do the deletion.</p>
-<pre class="hljs"><code><div>    @section Scripts {
+<pre class="prettyprint"><code><div>    @section Scripts {
     &lt;script&gt;
         const userDeleteElements = document.querySelectorAll(<span class="hljs-string">'.user-delete-btn'</span>);
     
@@ -696,7 +696,7 @@ code {
     &lt;/script&gt;
 </div></code></pre>
 <p>Next we create a new <code>Post()</code> method named <code>OnPostDelete()</code></p>
-<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostDelete</span></span>()
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostDelete</span></span>()
     {
        <span class="hljs-built_in">return</span> Page();
     }
@@ -706,7 +706,7 @@ code {
 <p>You can see from the <code>userId</code> that I clicked on the UserName <code>admin</code>. This shows that we are able to capture the current <code>userId</code>.</p>
 <p>We now need to collect the <code>userId</code> and pass it back to the Code Behind class.</p>
 <p>To do this we will have to create another Form around the Table Div.</p>
-<pre class="hljs"><code><div>&lt;form method=<span class="hljs-string">"post"</span> asp-page-handler=<span class="hljs-string">"delete"</span> id=<span class="hljs-string">"deleteUserForm"</span>&gt;
+<pre class="prettyprint"><code><div>&lt;form method=<span class="hljs-string">"post"</span> asp-page-handler=<span class="hljs-string">"delete"</span> id=<span class="hljs-string">"deleteUserForm"</span>&gt;
     &lt;table class=<span class="hljs-string">"table"</span>&gt;
         &lt;thead&gt;
             &lt;tr&gt;
@@ -738,15 +738,15 @@ code {
 </div></code></pre>
 <p>We also add a hidden input field to grab the <code>selectedUserId</code>.</p>
 <p>In our Code Behind page create a bindable <code>selectedUserId</code> property.</p>
-<pre class="hljs"><code><div>    [BindProperty]
+<pre class="prettyprint"><code><div>    [BindProperty]
     public Guid SelectedUserId { get; <span class="hljs-built_in">set</span>; }
 </div></code></pre>
 <p>In our JavaScript create another element to grab the <code>selectedUserId</code>.</p>
 <p>In our Form element add the <code>delete</code> handler and id, <code>deleteUserForm</code>.</p>
-<pre class="hljs"><code><div>    &lt;form method=<span class="hljs-string">"post"</span> asp-page-handler=<span class="hljs-string">"delete"</span> id=<span class="hljs-string">"deleteUserForm"</span>&gt;
+<pre class="prettyprint"><code><div>    &lt;form method=<span class="hljs-string">"post"</span> asp-page-handler=<span class="hljs-string">"delete"</span> id=<span class="hljs-string">"deleteUserForm"</span>&gt;
 </div></code></pre>
 <p>Now update the JavaScript to get the <code>selectedUserId</code>  and the <code>deleteUserForm</code> elements.</p>
-<pre class="hljs"><code><div>    @section Scripts {
+<pre class="prettyprint"><code><div>    @section Scripts {
         &lt;script&gt;
             const userDeleteElements = document.querySelectorAll(<span class="hljs-string">'.user-delete-btn'</span>);
             const selectedUserIdElement = document.getElementById(<span class="hljs-string">'selectedUserId'</span>);
@@ -765,7 +765,7 @@ code {
     }
 </div></code></pre>
 <p>Now that we have the <code>userId</code> we can work on creating a <code>DeleteUser()</code> method in the <code>UserRepository</code> class.</p>
-<pre class="hljs"><code><div>    public async Task DeleteUser(Guid userId)
+<pre class="prettyprint"><code><div>    public async Task DeleteUser(Guid userId)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
 
@@ -776,7 +776,7 @@ code {
     }
 </div></code></pre>
 <p>Use this in the <code>Index</code> Code Behind class.</p>
-<pre class="hljs"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostDelete</span></span>()
+<pre class="prettyprint"><code><div>    public async Task&lt;IActionResult&gt; <span class="hljs-function"><span class="hljs-title">OnPostDelete</span></span>()
     {
         await userRepository.DeleteUser(SelectedUserId);
         <span class="hljs-built_in">return</span> RedirectToPage(<span class="hljs-string">"/Admin/Users/Index"</span>);
@@ -787,7 +787,7 @@ code {
 <p>Log in as a standard user and navigate to <a href="https://localhost:7100/admin/users/index">the Admin section</a>.</p>
 <p>As a standard user you can see this page and we need to stop that.</p>
 <p>In the Index Code Behind class add the <code>Authorize</code> attribute.</p>
-<pre class="hljs"><code><div>    namespace Blog.Pages.Admin.Users
+<pre class="prettyprint"><code><div>    namespace Blog.Pages.Admin.Users
     {
         [Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
         public class IndexModel : PageModel
@@ -799,7 +799,7 @@ code {
 <h2 id="edit-a-user-record">Edit a User record</h2>
 <p>I want to be able to edit a Users details and the only way you can do this using Identity is to delete the original record and create a new User record. This is because the database stores the password as a password hash value and we can't see or change this field.</p>
 <h3 id="editcshtml">Edit.cshtml</h3>
-<pre class="hljs"><code><div>@page <span class="hljs-string">"{id?}"</span>
+<pre class="prettyprint"><code><div>@page <span class="hljs-string">"{id?}"</span>
 @model Blog.Pages.Admin.Users.EditModel
 @{
 }
@@ -871,7 +871,7 @@ code {
 </div></code></pre>
 <p>I use the <code>Notification</code> to alert the administrator that they need to fill in all fields.</p>
 <h3 id="editcshtmlcs">Edit.cshtml.cs</h3>
-<pre class="hljs"><code><div>[Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
+<pre class="prettyprint"><code><div>[Authorize(Roles = <span class="hljs-string">"Admin"</span>)]
 public class EditModel : PageModel
 {
     private <span class="hljs-built_in">readonly</span> IUserRepository userRepository;
