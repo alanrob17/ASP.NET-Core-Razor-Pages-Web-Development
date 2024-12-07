@@ -79,7 +79,7 @@ Now create a constructor and add the ``DbSet<>`` collections.
     }
 ```
 
-### Adding a Connection string tp the Database
+### Adding a Connection string to the Database
 
 In ``appstettings.json`` add.
 

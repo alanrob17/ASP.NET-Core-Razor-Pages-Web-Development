@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Entity Framework</title>
+<link href="assets/css/bootstrap.css" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="assets/css/starter-template.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?lang=css&amp;skin=sunburst"></script>
+<style type="text/css">
+html {
+	font-size: 90.0%;
+}
+
+h2 {
+	margin-top: 60px;
+}
+
+h4, h3 {
+	padding-top: 40px!;		
+}
+
+p {
+	font-size: 1.2em;
+}
+h4 {
+	font-size: 1.4em;
+}
+
+img, pre.prettyprint {
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
+}
+h1, h2, h3, h4, h5, h6 {
+    color:#007bff;
+
+}
+blockquote {
+    border-left: 4px solid #999;
+    padding-left: 1rem;
+    page-break-inside: avoid;
+}
+:target:before {
+  content: "";
+  display: block;
+  height: 80px; /* adjust this value to your needs */
+  margin: -80px 0 0; /* this should be a negative value of the height above */
+}
+</style>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Entity Framework</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Home</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Working With an Existing Database - Database First <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="container">
+    <div class="starter-template">
+
+
+<h1 id="entity-framework-with-database-first">Entity Framework with Database First</h1>
+<p>This is how we create the context and entity classes for an existing database in Entity Framework Core. Creating entity &amp; context classes for an existing database is called Database-First approach.</p>
+<h2 id="install-nuget-packages">Install NuGet packages</h2>
+<blockquote>
+<p>Install-Package Microsoft.EntityFrameworkCore.SqlServer</p>
+<p>Install-Package Microsoft.EntityFrameworkCore.Tools</p>
+</blockquote>
+<h2 id="connecting-to-recorddb-database">Connecting to RecordDb Database</h2>
+<p>Run this command in the Package Manager Console (I am using a Docker container of the database).</p>
+<pre class="prettyprint"><code><div>Scaffold-DbContext <span class="hljs-string">"Server=recorddb,11433;Database=RecordDB;User Id=sa;Password=your-password;TrustServerCertificate=True;"</span> Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+</div></code></pre>
+<p>It will build up the Models for your Database and the <code>RecordDbContext</code>.</p>
+<p><strong>Note:</strong> I found a nice way to change a DateTime value into a Date value. My Record entity has a DateTime field named <code>Bought</code>. I am only interested in the date values so I can do this in the <code>Record</code> Entity.</p>
+<pre class="prettyprint"><code><div>    [DisplayFormat(DataFormatString = <span class="hljs-string">"{0:dd/MM/yyyy}"</span>, ApplyFormatInEditMode = <span class="hljs-literal">true</span>)]
+    public DateTime? Bought { get; <span class="hljs-built_in">set</span>; }
+</div></code></pre>
+<p>Output format:</p>
+<p><img src="assets/images/date-format.jpg" alt="Date only format" title="Date only format"></p>
+
+
+
+</div><!-- starter-template -->
+</div><!-- /.container -->
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"/>
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/bootstrap.min.js"></script>
+</body>
+</html>
