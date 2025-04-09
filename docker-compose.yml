@@ -1,0 +1,15 @@
+services:
+  web:
+    build: .
+    container_name: razor-pages-web-dev-web
+    image: razor-pages-web-dev-app
+    ports:
+      - "8000:80"
+    environment:
+      - APACHE_LOG_DIR=/var/log/apache2
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
